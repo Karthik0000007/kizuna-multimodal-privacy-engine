@@ -1,0 +1,161 @@
+# Kizuna Multimodal Privacy Engine - Edge Node Configuration
+# Version: 1.0
+# Optimized for resource-constrained edge devices
+
+system:
+  name: "kizuna-edge-node-1"
+  version: "0.1.0"
+  log_level: "WARNING"  # Reduce logging overhead
+  log_dir: "logs"
+  correlation_id_enabled: true
+
+ingestion:
+  enabled: true
+  modalities:
+    - video
+    - audio
+    - environmental
+  
+  video:
+    enabled: true
+    fps: 10  # Lower FPS for edge constraints
+    resolution: [224, 224]
+    source_type: "simulator"
+    source_path: null
+  
+  audio:
+    enabled: true
+    sample_rate: 16000
+    chunk_duration: 1.0
+    source_type: "simulator"
+    source_path: null
+  
+  environmental:
+    enabled: true
+    sensors:
+      - temperature
+      - humidity
+      - motion
+      - light
+      - air_quality
+    polling_rate: 1.0
+  
+  temporal_alignment:
+    enabled: true
+    window_size: 1.0
+    jitter_tolerance: 0.05
+    buffer_size: 50  # Smaller buffer for edge
+  
+  backpressure:
+    enabled: true
+    max_queue_size: 100
+    policy: "newest_wins"
+
+embedding:
+  enabled: true
+  output_dimension: 512
+  normalization: "l2"
+  
+  vision:
+    model_path: "models/vision/model_int8.onnx"  # INT8 quantized for edge
+    preprocessing:
+      resize: [224, 224]
+      normalize_mean: [0.485, 0.456, 0.406]
+      normalize_std: [0.229, 0.224, 0.225]
+      channel_order: "CHW"
+  
+  audio:
+    model_path: "models/audio/model_int8.onnx"  # INT8 quantized
+    preprocessing:
+      target_sample_rate: 16000
+      n_mels: 128
+      n_fft: 2048
+      hop_length: 512
+  
+  sensor:
+    model_path: "models/sensor/model_int8.onnx"
+    normalization_ranges:
+      temperature: [15.0, 40.0]
+      humidity: [20.0, 90.0]
+      motion: [0.0, 1.0]
+      light: [0.0, 1000.0]
+      air_quality: [0.0, 500.0]
+  
+  fusion:
+    strategy: "late_fusion"
+    projection_head_path: "models/fusion/projection.onnx"
+    handle_missing: true
+  
+  runtime:
+    execution_provider: "CPUExecutionProvider"  # CPU only on edge
+    intra_op_num_threads: 2  # Match Docker CPU limit
+    inter_op_num_threads: 1
+    graph_optimization_level: "ORT_ENABLE_ALL"
+
+privacy:
+  enabled: true
+  
+  differential_privacy:
+    enabled: true
+    mechanism: "laplace"
+    epsilon: 2.0  # Slightly relaxed for edge (more noise = less compute)
+    delta: 1e-5
+    sensitivity: 2.0
+  
+  memory_wiping:
+    enabled: true
+    method: "native"  # Use native C++ for performance
+    overwrite_passes: 1
+    verify: false  # Disable verification to save compute
+  
+  budget_tracking:
+    enabled: true
+    total_budget: 10.0
+    alert_threshold: 0.8
+    composition: "sequential"
+    persistence_path: "logs/privacy_budget.json"
+  
+  audit_logging:
+    enabled: true
+    log_all_events: false  # Only log critical events to save disk I/O
+    log_path: "logs/privacy_audit.log"
+
+database:
+  backend: "faiss"  # Use lightweight FAISS on edge
+  
+  faiss:
+    index_type: "IndexFlatIP"
+    persistence_path: "data/faiss_index.bin"
+    max_vectors: 10000  # Smaller capacity on edge
+    save_interval: 100
+
+anomaly:
+  enabled: false  # Anomaly detection happens at central node
+
+dashboard:
+  enabled: false  # No dashboard on edge
+
+edge_simulation:
+  enabled: true
+  node_id: "edge-node-1"
+  resource_constraints:
+    cpu_cores: 2  # Simulated edge constraint
+    memory_gb: 2.0
+  
+  transmission:
+    protocol: "grpc"
+    target_host: "central-node"  # Docker service name
+    target_port: 50051
+    batch_size: 5
+    buffer_size: 100
+    retry_attempts: 10  # More retries on edge (flaky network)
+
+telemetry:
+  enabled: true
+  metrics:
+    - latency
+    - throughput
+    - memory_usage
+  
+  export:
+    enabled: false

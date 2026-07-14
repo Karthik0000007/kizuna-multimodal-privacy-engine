@@ -1,0 +1,259 @@
+# Kizuna Multimodal Privacy Engine - Default Configuration
+# Version: 1.0
+# Last updated: 2026-06-16
+
+# System-wide settings
+system:
+  name: "kizuna-central"
+  version: "0.1.0"
+  log_level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  log_dir: "logs"
+  correlation_id_enabled: true
+
+# Data ingestion settings
+ingestion:
+  enabled: true
+  modalities:
+    - video
+    - audio
+    - environmental
+  
+  video:
+    enabled: true
+    fps: 15  # frames per second (1-30)
+    resolution: [320, 320]  # [width, height]
+    source_type: "simulator"  # simulator, file, camera
+    source_path: null
+  
+  audio:
+    enabled: true
+    sample_rate: 16000  # Hz
+    chunk_duration: 1.0  # seconds
+    source_type: "simulator"  # simulator, file, microphone
+    source_path: null
+  
+  environmental:
+    enabled: true
+    sensors:
+      - temperature
+      - humidity
+      - motion
+      - light
+      - air_quality
+    polling_rate: 1.0  # seconds
+  
+  temporal_alignment:
+    enabled: true
+    window_size: 1.0  # seconds
+    jitter_tolerance: 0.05  # ±50ms
+    buffer_size: 100  # number of payloads
+  
+  backpressure:
+    enabled: true
+    max_queue_size: 1000
+    policy: "newest_wins"  # newest_wins, oldest_wins, drop_random
+
+# Embedding engine settings
+embedding:
+  enabled: true
+  output_dimension: 512  # D-dimensional embedding space
+  normalization: "l2"  # l2, none
+  
+  vision:
+    model_path: "models/vision/model_int8.onnx"
+    preprocessing:
+      resize: [224, 224]
+      normalize_mean: [0.485, 0.456, 0.406]  # ImageNet
+      normalize_std: [0.229, 0.224, 0.225]
+      channel_order: "CHW"  # CHW, HWC
+  
+  audio:
+    model_path: "models/audio/model_int8.onnx"
+    preprocessing:
+      target_sample_rate: 16000
+      n_mels: 128
+      n_fft: 2048
+      hop_length: 512
+  
+  sensor:
+    model_path: "models/sensor/model_int8.onnx"
+    normalization_ranges:
+      temperature: [15.0, 40.0]  # Celsius
+      humidity: [20.0, 90.0]  # percentage
+      motion: [0.0, 1.0]  # binary
+      light: [0.0, 1000.0]  # lux
+      air_quality: [0.0, 500.0]  # AQI
+  
+  fusion:
+    strategy: "late_fusion"  # late_fusion, early_fusion
+    projection_head_path: "models/fusion/projection.onnx"
+    handle_missing: true  # gracefully handle missing modalities
+  
+  runtime:
+    execution_provider: "CPUExecutionProvider"  # CPUExecutionProvider, CUDAExecutionProvider
+    intra_op_num_threads: 2
+    inter_op_num_threads: 1
+    graph_optimization_level: "ORT_ENABLE_ALL"
+
+# Privacy layer settings
+privacy:
+  enabled: true
+  
+  differential_privacy:
+    enabled: true
+    mechanism: "laplace"  # laplace, gaussian
+    epsilon: 1.0  # privacy budget per query (lower = more private)
+    delta: 1e-5  # only for gaussian mechanism
+    sensitivity: 2.0  # L2 sensitivity (calibrated empirically)
+  
+  memory_wiping:
+    enabled: true
+    method: "native"  # native (C++ pybind11), python (ctypes)
+    overwrite_passes: 1  # number of overwrite passes
+    verify: true  # verify wipe by checking buffer
+  
+  budget_tracking:
+    enabled: true
+    total_budget: 10.0  # total epsilon budget ceiling
+    alert_threshold: 0.8  # alert when 80% exhausted
+    composition: "sequential"  # sequential, parallel
+    persistence_path: "logs/privacy_budget.json"
+  
+  audit_logging:
+    enabled: true
+    log_all_events: true
+    log_path: "logs/privacy_audit.log"
+
+# Vector database settings
+database:
+  backend: "qdrant"  # qdrant, faiss
+  
+  qdrant:
+    host: "localhost"
+    port: 6333
+    collection_name: "kizuna_embeddings"
+    vector_dimension: 512
+    distance_metric: "cosine"  # cosine, euclidean, dot
+    
+    hnsw_config:
+      m: 16  # number of edges per node
+      ef_construct: 100  # construction time parameter
+      ef_search: 50  # search time parameter
+    
+    connection:
+      timeout: 30  # seconds
+      retry_attempts: 3
+      retry_backoff: 2.0  # exponential backoff multiplier
+    
+    persistence:
+      enabled: true
+      storage_path: "qdrant_storage"
+    
+    retention:
+      enabled: true
+      ttl_days: 30  # auto-delete after 30 days
+  
+  faiss:
+    index_type: "IndexFlatIP"  # IndexFlatIP (cosine), IndexFlatL2 (euclidean)
+    persistence_path: "data/faiss_index.bin"
+    max_vectors: 1000000  # 1M vectors
+    save_interval: 1000  # save every 1000 insertions
+
+# Anomaly detection settings
+anomaly:
+  enabled: true
+  detectors:
+    - knn
+    - density
+    - cluster
+  
+  knn:
+    enabled: true
+    k: 10  # number of nearest neighbors
+    threshold: 0.7  # average distance threshold
+    weight: 1.0  # voting weight
+  
+  density:
+    enabled: true
+    algorithm: "lof"  # lof (Local Outlier Factor)
+    n_neighbors: 20
+    threshold: 1.5  # LOF threshold
+    weight: 1.0
+  
+  cluster:
+    enabled: true
+    baseline_clusters:
+      - normal_walk
+      - sitting_still
+      - crowd_flow
+    cluster_threshold: 0.6  # distance to nearest cluster
+    weight: 1.0
+  
+  ensemble:
+    enabled: true
+    voting_strategy: "majority"  # majority, unanimous, weighted
+    min_votes: 2  # minimum detector agreement (out of 3)
+    confidence_aggregation: "weighted_average"  # weighted_average, max, mean
+  
+  classification:
+    enabled: true
+    event_types:
+      - fall_risk
+      - wandering
+      - congestion_alert
+      - unusual_sound
+      - environmental_anomaly
+    top_k: 3  # return top-3 types with confidence
+
+# Dashboard settings
+dashboard:
+  enabled: false  # not enabled by default in central node
+  host: "0.0.0.0"
+  port: 8501
+  title: "Kizuna Privacy Engine Dashboard"
+  auto_refresh_interval: 1.0  # seconds
+  max_events_display: 50
+  
+  pages:
+    - live_monitor
+    - anomaly_history
+    - vector_explorer
+    - system_health
+    - settings
+  
+  vector_explorer:
+    projection_method: "umap"  # umap, tsne
+    projection_dim: 2
+    recompute_interval: 300  # seconds (5 minutes)
+    cache_projections: true
+
+# Edge simulation settings (only used in edge nodes)
+edge_simulation:
+  enabled: false  # not an edge node by default
+  node_id: "central-node"
+  resource_constraints:
+    cpu_cores: 4
+    memory_gb: 4.0
+  
+  transmission:
+    protocol: "grpc"  # grpc, rest
+    target_host: "localhost"
+    target_port: 50051
+    batch_size: 10  # embeddings per batch
+    buffer_size: 1000  # buffer before transmission
+    retry_attempts: 5
+
+# Telemetry and monitoring
+telemetry:
+  enabled: true
+  metrics:
+    - latency
+    - throughput
+    - memory_usage
+    - cpu_usage
+    - anomaly_count
+  
+  export:
+    enabled: false
+    backend: "prometheus"  # prometheus, cloudwatch, datadog
+    port: 9090

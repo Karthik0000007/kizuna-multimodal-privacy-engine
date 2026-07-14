@@ -1,0 +1,123 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.hypothesis/
+*.cover
+.cache
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# Linting
+.ruff_cache/
+
+# Data
+data/raw/
+data/processed/
+data/cache/
+*.csv
+*.parquet
+*.h5
+*.hdf5
+
+# Models
+models/**/*.onnx
+models/**/*.pt
+models/**/*.pth
+models/**/*.pkl
+!models/README.md
+
+# Logs
+logs/*.log
+logs/*.json
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# MLOps
+mlruns/
+.dvc/cache/
+.dvc/tmp/
+
+# Benchmarks
+benchmarks/results/
+benchmarks/*.json
+benchmarks/*.png
+benchmarks/*.pdf
+
+# Documentation
+docs/_build/
+site/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Qdrant
+qdrant_storage/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Secrets (extra safety)
+*secret*
+*credentials*
+*.key
+*.pem

@@ -1,0 +1,178 @@
+# Kizuna Multimodal Privacy Engine - Development Configuration
+# Version: 1.0
+# For local development and testing
+
+system:
+  name: "kizuna-dev"
+  version: "0.1.0"
+  log_level: "DEBUG"  # Verbose logging for development
+  log_dir: "logs"
+  correlation_id_enabled: true
+
+ingestion:
+  enabled: true
+  modalities:
+    - video
+    - audio
+    - environmental
+  
+  video:
+    enabled: true
+    fps: 5  # Lower FPS for faster dev iteration
+    resolution: [224, 224]
+    source_type: "simulator"
+    source_path: null
+  
+  audio:
+    enabled: true
+    sample_rate: 16000
+    chunk_duration: 1.0
+    source_type: "simulator"
+    source_path: null
+  
+  environmental:
+    enabled: true
+    sensors:
+      - temperature
+      - motion
+    polling_rate: 1.0
+  
+  temporal_alignment:
+    enabled: true
+    window_size: 1.0
+    jitter_tolerance: 0.1  # More tolerant for dev
+    buffer_size: 10
+  
+  backpressure:
+    enabled: true
+    max_queue_size: 50
+    policy: "newest_wins"
+
+embedding:
+  enabled: true
+  output_dimension: 512
+  normalization: "l2"
+  
+  vision:
+    model_path: "models/vision/model_int8.onnx"
+    preprocessing:
+      resize: [224, 224]
+      normalize_mean: [0.485, 0.456, 0.406]
+      normalize_std: [0.229, 0.224, 0.225]
+      channel_order: "CHW"
+  
+  audio:
+    model_path: "models/audio/model_int8.onnx"
+    preprocessing:
+      target_sample_rate: 16000
+      n_mels: 128
+      n_fft: 2048
+      hop_length: 512
+  
+  sensor:
+    model_path: "models/sensor/model_int8.onnx"
+    normalization_ranges:
+      temperature: [15.0, 40.0]
+      motion: [0.0, 1.0]
+  
+  fusion:
+    strategy: "late_fusion"
+    projection_head_path: "models/fusion/projection.onnx"
+    handle_missing: true
+  
+  runtime:
+    execution_provider: "CPUExecutionProvider"
+    intra_op_num_threads: 4  # Use more threads in dev
+    inter_op_num_threads: 2
+    graph_optimization_level: "ORT_ENABLE_ALL"
+
+privacy:
+  enabled: true
+  
+  differential_privacy:
+    enabled: false  # Disable DP for faster dev/debugging
+    mechanism: "laplace"
+    epsilon: 10.0  # Very relaxed for dev
+    delta: 1e-5
+    sensitivity: 2.0
+  
+  memory_wiping:
+    enabled: true
+    method: "python"  # Python fallback for easier debugging
+    overwrite_passes: 1
+    verify: true
+  
+  budget_tracking:
+    enabled: false  # Disable for dev
+    total_budget: 100.0
+    alert_threshold: 0.9
+    composition: "sequential"
+    persistence_path: "logs/privacy_budget.json"
+  
+  audit_logging:
+    enabled: true
+    log_all_events: true
+    log_path: "logs/privacy_audit.log"
+
+database:
+  backend: "faiss"  # FAISS is easier for dev (no Docker dependency)
+  
+  faiss:
+    index_type: "IndexFlatIP"
+    persistence_path: "data/faiss_index_dev.bin"
+    max_vectors: 1000
+    save_interval: 10
+
+anomaly:
+  enabled: true
+  detectors:
+    - knn  # Start with simplest detector
+  
+  knn:
+    enabled: true
+    k: 5  # Smaller K for dev
+    threshold: 0.7
+    weight: 1.0
+  
+  density:
+    enabled: false
+  
+  cluster:
+    enabled: false
+  
+  ensemble:
+    enabled: false
+  
+  classification:
+    enabled: false
+
+dashboard:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8501
+  title: "Kizuna Privacy Engine Dashboard (DEV)"
+  auto_refresh_interval: 2.0
+  max_events_display: 20
+  
+  pages:
+    - live_monitor
+    - system_health
+  
+  vector_explorer:
+    projection_method: "umap"
+    projection_dim: 2
+    recompute_interval: 60  # More frequent in dev
+    cache_projections: false  # Disable caching for dev
+
+edge_simulation:
+  enabled: false
+  node_id: "dev-node"
+
+telemetry:
+  enabled: true
+  metrics:
+    - latency
+    - throughput
+  
+  export:
+    enabled: false

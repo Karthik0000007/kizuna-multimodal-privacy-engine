@@ -1,0 +1,249 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kizuna-privacy-engine"
+version = "0.1.0"
+description = "Multimodal privacy-preserving anomaly detection engine for Japan's super-aging society"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "Apache-2.0"}
+authors = [
+    {name = "Kizuna Team", email = "kizuna@example.com"}
+]
+keywords = ["privacy", "multimodal", "anomaly-detection", "edge-computing", "APPI"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+    # Core ML/AI
+    "numpy>=1.24.0,<2.0.0",
+    "onnxruntime>=1.16.0",
+    "torch>=2.0.0,<3.0.0",
+    "torchvision>=0.15.0",
+    "transformers>=4.35.0",
+    
+    # Audio processing
+    "librosa>=0.10.0",
+    "soundfile>=0.12.0",
+    
+    # Computer vision
+    "opencv-python>=4.8.0",
+    "Pillow>=10.0.0",
+    
+    # Vector database
+    "qdrant-client>=1.7.0",
+    "faiss-cpu>=1.7.4",
+    
+    # Privacy & security
+    "cryptography>=41.0.0",
+    
+    # Data science
+    "pandas>=2.0.0",
+    "scikit-learn>=1.3.0",
+    "umap-learn>=0.5.4",
+    
+    # Configuration & validation
+    "pyyaml>=6.0",
+    "pydantic>=2.0.0",
+    
+    # Logging
+    "structlog>=23.1.0",
+    "python-json-logger>=2.0.7",
+    
+    # Utilities
+    "python-dotenv>=1.0.0",
+    "tqdm>=4.66.0",
+    "click>=8.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    # Testing
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-xdist>=3.3.0",
+    "hypothesis>=6.88.0",
+    
+    # Code quality
+    "ruff>=0.1.0",
+    "black>=23.9.0",
+    "isort>=5.12.0",
+    "mypy>=1.5.0",
+    "pre-commit>=3.4.0",
+    
+    # Type stubs
+    "types-PyYAML>=6.0.0",
+    "types-requests>=2.31.0",
+    "pandas-stubs>=2.0.0",
+]
+
+dashboard = [
+    "streamlit>=1.28.0",
+    "plotly>=5.17.0",
+    "altair>=5.1.0",
+]
+
+mlops = [
+    "mlflow>=2.8.0",
+    "dvc>=3.30.0",
+    "dvc-gdrive>=2.20.0",
+]
+
+docs = [
+    "mkdocs>=1.5.0",
+    "mkdocs-material>=9.4.0",
+    "mkdocstrings[python]>=0.23.0",
+]
+
+all = [
+    "kizuna-privacy-engine[dev,dashboard,mlops,docs]",
+]
+
+[project.scripts]
+kizuna = "kizuna.cli:main"
+kizuna-edge = "kizuna.edge_node:main"
+kizuna-central = "kizuna.central_node:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+kizuna = ["py.typed"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "-q",
+    "--strict-markers",
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "privacy: marks tests that verify privacy guarantees",
+    "performance: marks tests that measure performance",
+    "edge: marks tests that simulate edge constraints",
+]
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+]
+
+[tool.coverage.report]
+precision = 2
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@abstractmethod",
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311"]
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = false
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+follow_imports = "normal"
+ignore_missing_imports = true
+strict_optional = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "onnxruntime.*",
+    "faiss.*",
+    "qdrant_client.*",
+    "librosa.*",
+    "soundfile.*",
+    "cv2.*",
+    "umap.*",
+]
+ignore_missing_imports = true

@@ -1,0 +1,38 @@
+# Kizuna Multimodal Privacy Engine - Development Dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Include production dependencies
+-r requirements.txt
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.21.0
+pytest-xdist>=3.3.0
+hypothesis>=6.88.0
+
+# Code quality
+ruff>=0.1.0
+black>=23.9.0
+isort>=5.12.0
+mypy>=1.5.0
+pre-commit>=3.4.0
+
+# Type stubs
+types-PyYAML>=6.0.0
+types-requests>=2.31.0
+pandas-stubs>=2.0.0
+
+# Dashboard
+streamlit>=1.28.0
+plotly>=5.17.0
+altair>=5.1.0
+
+# MLOps
+mlflow>=2.8.0
+dvc>=3.30.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.4.0
+mkdocstrings[python]>=0.23.0
