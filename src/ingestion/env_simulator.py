@@ -87,7 +87,9 @@ class EnvironmentalSimulator:
         if not 0.0 <= noise_level <= 1.0:
             raise ValueError(f"Noise level must be between 0 and 1, got {noise_level}")
         if not 0.0 <= anomaly_probability <= 1.0:
-            raise ValueError(f"Anomaly probability must be between 0 and 1, got {anomaly_probability}")
+            raise ValueError(
+                f"Anomaly probability must be between 0 and 1, got {anomaly_probability}"
+            )
 
         self.sensors = sensors
         self.polling_rate = polling_rate
@@ -117,7 +119,9 @@ class EnvironmentalSimulator:
             scenario=scenario.value,
         )
 
-    def generate(self, duration_seconds: Optional[float] = None) -> Generator[SensorReading, None, None]:
+    def generate(
+        self, duration_seconds: Optional[float] = None
+    ) -> Generator[SensorReading, None, None]:
         """Generate environmental sensor readings.
 
         Args:
@@ -270,7 +274,7 @@ class EnvironmentalSimulator:
     def _generate_hvac_failure(self) -> Dict[str, float]:
         """Generate HVAC failure readings (temperature drift)."""
         # Temperature drifts up over time
-        temp_drift = (self.reading_number * 0.05)
+        temp_drift = self.reading_number * 0.05
         temperature = self._base_temperature + temp_drift
 
         # Humidity also drifts
@@ -471,7 +475,9 @@ class EnvironmentalSimulator:
         # Motion: binary, no noise
 
         # Light: ±5% sensor accuracy
-        noisy_values["light"] += np.random.normal(0, noisy_values["light"] * 0.05 * self.noise_level)
+        noisy_values["light"] += np.random.normal(
+            0, noisy_values["light"] * 0.05 * self.noise_level
+        )
         noisy_values["light"] = max(0, noisy_values["light"])
 
         # Air quality: ±5 AQI
@@ -541,8 +547,12 @@ def main() -> None:
     scenario = EnvironmentalScenario(args.scenario)
     simulator = EnvironmentalSimulator(polling_rate=args.polling_rate, scenario=scenario)
 
-    print(f"Generating {args.duration}s of {scenario.value} at {args.polling_rate}s polling rate...")
-    print(f"{'Time':<10} {'Temp(°C)':<10} {'Humid(%)':<10} {'Motion':<8} {'Light(lux)':<12} {'AQI':<8}")
+    print(
+        f"Generating {args.duration}s of {scenario.value} at {args.polling_rate}s polling rate..."
+    )
+    print(
+        f"{'Time':<10} {'Temp(°C)':<10} {'Humid(%)':<10} {'Motion':<8} {'Light(lux)':<12} {'AQI':<8}"
+    )
     print("-" * 70)
 
     for reading in simulator.generate(duration_seconds=args.duration):

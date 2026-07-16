@@ -34,6 +34,7 @@ class AudioScenario(Enum):
     FOOTSTEPS = "footsteps"
     DOOR_SLAM = "door_slam"
     ALARM = "alarm"
+    UNUSUAL_SOUND = "unusual_sound"
 
 
 @dataclass
@@ -100,7 +101,9 @@ class AudioSimulator:
             samples_per_chunk=self.samples_per_chunk,
         )
 
-    def generate(self, duration_seconds: Optional[float] = None) -> Generator[AudioChunk, None, None]:
+    def generate(
+        self, duration_seconds: Optional[float] = None
+    ) -> Generator[AudioChunk, None, None]:
         """Generate audio chunks.
 
         Args:
@@ -177,6 +180,8 @@ class AudioSimulator:
             return self._generate_door_slam()
         elif self.scenario == AudioScenario.ALARM:
             return self._generate_alarm()
+        elif self.scenario == AudioScenario.UNUSUAL_SOUND:
+            return self._generate_glass_breaking()
         else:
             raise ValueError(f"Unsupported scenario: {self.scenario}")
 
@@ -400,7 +405,9 @@ class AudioSimulator:
         noise = np.random.randn(len(audio)).astype(np.float32) * self.noise_level
         return audio + noise
 
-    def _normalize(self, audio: NDArray[np.float32], target_level: float = 0.7) -> NDArray[np.float32]:
+    def _normalize(
+        self, audio: NDArray[np.float32], target_level: float = 0.7
+    ) -> NDArray[np.float32]:
         """Normalize audio to target level.
 
         Args:
@@ -439,6 +446,7 @@ class AudioSimulator:
         # Resample if needed
         if original_sample_rate != self.sample_rate:
             import librosa
+
             audio = librosa.resample(
                 audio, orig_sr=original_sample_rate, target_sr=self.sample_rate
             )
@@ -511,10 +519,7 @@ def main() -> None:
     all_audio = []
     for chunk_obj in simulator.generate(duration_seconds=args.duration):
         all_audio.append(chunk_obj.audio)
-        print(
-            f"Chunk {chunk_obj.chunk_number}: "
-            f"RMS={chunk_obj.metadata['rms_amplitude']:.4f}"
-        )
+        print(f"Chunk {chunk_obj.chunk_number}: " f"RMS={chunk_obj.metadata['rms_amplitude']:.4f}")
 
     # Save to file if output specified
     if args.output:

@@ -4,6 +4,11 @@
 
 A privacy-preserving multimodal embedding engine designed for Japan's super-aging society. Kizuna converts video, audio, and sensor streams into unified vector embeddings at the edge, enabling anomaly detection without compromising personal data.
 
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![ONNX Runtime](https://img.shields.io/badge/ONNX-Runtime-green.svg)](https://onnxruntime.ai/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![APPI Compliant](https://img.shields.io/badge/APPI-Compliant-success.svg)](https://www.ppc.go.jp/en/)
+
 ---
 
 ## 🎯 Problem Statement
@@ -45,95 +50,64 @@ Kizuna solves this by converting all sensor data into **anonymized vector embedd
 
 ## 🏗️ Architecture Overview
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    EDGE NODE (Docker Simulated)                 │
-│                                                                 │
-│  Raw Sensors          Preprocessing         Embedding Engine    │
-│  ┌──────────┐        ┌──────────┐         ┌────────────────┐  │
-│  │  Video   │───────▶│  Frames  │────────▶│  Vision Model  │  │
-│  │  Stream  │        │Extraction│         │   (CLIP-ViT)   │  │
-│  └──────────┘        └──────────┘         └────────────────┘  │
-│                                                     │           │
-│  ┌──────────┐        ┌──────────┐         ┌────────▼───────┐  │
-│  │  Audio   │───────▶│Spectro-  │────────▶│  Audio Model   │  │
-│  │  Stream  │        │   gram   │         │  (AudioCLIP)   │  │
-│  └──────────┘        └──────────┘         └────────────────┘  │
-│                                                     │           │
-│  ┌──────────┐                             ┌────────▼───────┐  │
-│  │ Motion/  │────────────────────────────▶│ Multimodal     │  │
-│  │  Env     │                             │ Fusion Layer   │  │
-│  └──────────┘                             └────────────────┘  │
-│                                                     │           │
-│                      ┌──────────────────────────────▼─────┐   │
-│                      │  Privacy Layer (DP + Wiping)       │   │
-│                      └──────────────────────────────────┬─┘   │
-└──────────────────────────────────────────────────────────┼─────┘
-                                                           │
-                        Anonymized Vectors Only            │
-                                                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              CENTRAL SYSTEM (Cloud/On-Premises)                 │
-│                                                                 │
-│   ┌──────────────┐      ┌──────────────┐      ┌────────────┐  │
-│   │   Vector DB  │─────▶│   Anomaly    │─────▶│ Dashboard  │  │
-│   │   (Qdrant)   │      │   Detection  │      │(Streamlit) │  │
-│   └──────────────┘      └──────────────┘      └────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Edge Device
+        V[Video Camera] -->|Frames| VE[Vision Encoder]
+        A[Microphone] -->|Audio Chunks| AE[Audio Encoder]
+        S[Sensors] -->|Telemetry| SE[Sensor Encoder]
+        
+        VE -->|Embeddings| F[Fusion Engine]
+        AE -->|Embeddings| F
+        SE -->|Embeddings| F
+        
+        F -->|Fused Vector| DP[Differential Privacy Injector]
+        DP -->|Noisy Vector| MEM[In-Memory Buffer]
+        
+        MEM -->|Batch| AD[Anomaly Classifier]
+    end
+    
+    subgraph Central Hub / Cloud
+        AD -->|Alert Payload & Confidence| DB[(Vector Database)]
+        DB --> Dashboard[Streamlit Dashboard]
+    end
+    
+    style V fill:#e1f5fe,stroke:#0288d1
+    style A fill:#e1f5fe,stroke:#0288d1
+    style S fill:#e1f5fe,stroke:#0288d1
+    style DP fill:#ffcdd2,stroke:#c62828
+    style DB fill:#c8e6c9,stroke:#2e7d32
 ```
 
----
+## Quick Start
 
-## 🚀 Quick Start
+### 1. Prerequisites
+- Python 3.9+
+- Docker & Docker Compose (for dashboard/DB deployment)
 
-### Prerequisites
-
-- **Python 3.10+**
-- **Docker & Docker Compose**
-- **Git**
-
-### Installation
-
+### 2. Installation
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/kizuna-multimodal-privacy-engine.git
+git clone https://github.com/your-username/kizuna-multimodal-privacy-engine.git
 cd kizuna-multimodal-privacy-engine
 
 # Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-
-# Download pre-trained ONNX models
-python scripts/download_models.py
 ```
 
-### Running with Docker (Recommended)
-
+### 3. Run the Dashboard
 ```bash
-# Start the simulated edge node with resource constraints
-docker-compose up -d
-
-# View logs
-docker-compose logs -f kizuna-edge-node
-
-# Access the dashboard
-open http://localhost:8501
+# Starts the Qdrant Vector DB and Streamlit frontend
+streamlit run src/dashboard/app.py
 ```
 
-### Running Locally (Development)
-
+### 4. Run Edge Simulation
+In a new terminal:
 ```bash
-# Start Qdrant vector database
-docker run -p 6333:6333 qdrant/qdrant
-
-# Run the embedding engine
-python src/main.py --mode edge --input demo/sample_video.mp4
-
-# Launch dashboard
-streamlit run app/dashboard.py
+python run.py
 ```
 
 ---

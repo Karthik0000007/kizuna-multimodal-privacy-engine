@@ -312,7 +312,7 @@ class TemporalAligner:
             Tuple of (VideoFrame, jitter) or (None, inf)
         """
         if not self.video_buffer:
-            return None, float('inf')
+            return None, float("inf")
 
         closest = min(self.video_buffer, key=lambda v: abs(v.timestamp - ref_timestamp))
         jitter = abs(closest.timestamp - ref_timestamp)
@@ -328,7 +328,7 @@ class TemporalAligner:
             Tuple of (AudioChunk, jitter) or (None, inf)
         """
         if not self.audio_buffer:
-            return None, float('inf')
+            return None, float("inf")
 
         closest = min(self.audio_buffer, key=lambda a: abs(a.timestamp - ref_timestamp))
         jitter = abs(closest.timestamp - ref_timestamp)
@@ -344,7 +344,7 @@ class TemporalAligner:
             Tuple of (SensorReading, jitter) or (None, inf)
         """
         if not self.env_buffer:
-            return None, float('inf')
+            return None, float("inf")
 
         closest = min(self.env_buffer, key=lambda e: abs(e.timestamp - ref_timestamp))
         jitter = abs(closest.timestamp - ref_timestamp)
@@ -383,9 +383,7 @@ def main() -> None:
     # Create simulators
     video_sim = VideoSimulator(fps=10, scenario=VideoScenario.PERSON_WALKING)
     audio_sim = AudioSimulator(sample_rate=16000, scenario=AudioScenario.NORMAL_AMBIENT)
-    env_sim = EnvironmentalSimulator(
-        polling_rate=1.0, scenario=EnvironmentalScenario.NORMAL_INDOOR
-    )
+    env_sim = EnvironmentalSimulator(polling_rate=1.0, scenario=EnvironmentalScenario.NORMAL_INDOOR)
 
     # Create aligner
     aligner = TemporalAligner(window_size=1.0, jitter_tolerance=0.1, require_all_modalities=False)

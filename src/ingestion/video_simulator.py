@@ -99,7 +99,9 @@ class VideoSimulator:
             scenario=scenario.value,
         )
 
-    def generate(self, duration_seconds: Optional[float] = None) -> Generator[VideoFrame, None, None]:
+    def generate(
+        self, duration_seconds: Optional[float] = None
+    ) -> Generator[VideoFrame, None, None]:
         """Generate video frames.
 
         Args:
@@ -249,7 +251,9 @@ class VideoSimulator:
 
         if self._fall_progress < 0.3:
             # Standing
-            cv2.ellipse(frame, (self._person_x, self._person_y), (15, 40), 0, 0, 360, person_color, -1)
+            cv2.ellipse(
+                frame, (self._person_x, self._person_y), (15, 40), 0, 0, 360, person_color, -1
+            )
             cv2.circle(frame, (self._person_x, self._person_y - 50), 12, (200, 180, 160), -1)
         elif self._fall_progress < 0.6:
             # Leaning / falling
@@ -295,7 +299,12 @@ class VideoSimulator:
         # Draw multiple people at different positions
         num_people = 8
         for i in range(num_people):
-            x = int(30 + (self.resolution[0] - 60) * ((i + self.frame_number * 0.01) % num_people) / num_people)
+            x = int(
+                30
+                + (self.resolution[0] - 60)
+                * ((i + self.frame_number * 0.01) % num_people)
+                / num_people
+            )
             y = int(self.resolution[1] * (0.3 + 0.3 * np.sin(i * 0.7)))
 
             # Vary person colors
@@ -471,9 +480,7 @@ def main() -> None:
     video_writer = None
     if args.output:
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        video_writer = cv2.VideoWriter(
-            args.output, fourcc, args.fps, simulator.resolution
-        )
+        video_writer = cv2.VideoWriter(args.output, fourcc, args.fps, simulator.resolution)
 
     print(f"Generating {args.duration}s of {scenario.value} at {args.fps} FPS...")
 

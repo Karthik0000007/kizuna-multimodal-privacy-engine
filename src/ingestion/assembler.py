@@ -165,9 +165,7 @@ class PayloadAssembler:
 
         # Update average jitter
         if self.stats.payloads_created > 0:
-            self.stats.average_jitter_ms = (
-                self.stats.total_jitter_ms / self.stats.payloads_created
-            )
+            self.stats.average_jitter_ms = self.stats.total_jitter_ms / self.stats.payloads_created
 
         logger.debug(
             "payload_assembled",
@@ -216,7 +214,9 @@ class PayloadAssembler:
             return self.payload_queue.popleft()
         return None
 
-    def stream(self, aligner: TemporalAligner, duration_seconds: Optional[float] = None) -> Generator[SensorPayload, None, None]:
+    def stream(
+        self, aligner: TemporalAligner, duration_seconds: Optional[float] = None
+    ) -> Generator[SensorPayload, None, None]:
         """Stream assembled payloads from temporal aligner.
 
         Args:
@@ -327,6 +327,7 @@ class PayloadAssembler:
         elif self.backpressure_policy == BackpressurePolicy.DROP_RANDOM:
             # Drop random payload
             import random
+
             if self.payload_queue and random.random() < 0.5:
                 # Drop old payload
                 self.payload_queue.popleft()
@@ -349,7 +350,9 @@ def main() -> None:
 
     # Create simulators
     video_sim = VideoSimulator(fps=10, scenario=VideoScenario.PERSON_WALKING)
-    audio_sim = AudioSimulator(sample_rate=16000, chunk_duration=1.0, scenario=AudioScenario.NORMAL_AMBIENT)
+    audio_sim = AudioSimulator(
+        sample_rate=16000, chunk_duration=1.0, scenario=AudioScenario.NORMAL_AMBIENT
+    )
     env_sim = EnvironmentalSimulator(polling_rate=1.0, scenario=EnvironmentalScenario.OCCUPIED_ROOM)
 
     # Create aligner

@@ -16,20 +16,20 @@ from typing import Any, Dict, Optional
 import structlog
 from structlog.typing import EventDict, WrappedLogger
 
-
 # PII patterns to redact from logs
 PII_PATTERNS = [
-    (re.compile(r'\b(?:\d{1,3}\.){3}\d{1,3}\b'), '[IP_REDACTED]'),  # IP addresses
-    (re.compile(r'[a-zA-Z]:[/\\]Users[/\\][^/\\]+'), '[USER_PATH]'),  # User paths (Windows/Unix)
-    (re.compile(r'/home/[^/]+'), '/home/[USER]'),  # Linux user paths
-    (re.compile(r'/Users/[^/]+'), '/Users/[USER]'),  # macOS user paths
-    (re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'), '[EMAIL_REDACTED]'),  # Emails
+    (re.compile(r"\b(?:\d{1,3}\.){3}\d{1,3}\b"), "[IP_REDACTED]"),  # IP addresses
+    (re.compile(r"[a-zA-Z]:[/\\]Users[/\\][^/\\]+"), "[USER_PATH]"),  # User paths (Windows/Unix)
+    (re.compile(r"/home/[^/]+"), "/home/[USER]"),  # Linux user paths
+    (re.compile(r"/Users/[^/]+"), "/Users/[USER]"),  # macOS user paths
+    (
+        re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"),
+        "[EMAIL_REDACTED]",
+    ),  # Emails
 ]
 
 
-def redact_pii(
-    logger: WrappedLogger, method_name: str, event_dict: EventDict
-) -> EventDict:
+def redact_pii(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
     """Redact PII from log events.
 
     Args:
@@ -48,9 +48,7 @@ def redact_pii(
     return event_dict
 
 
-def add_correlation_id(
-    logger: WrappedLogger, method_name: str, event_dict: EventDict
-) -> EventDict:
+def add_correlation_id(logger: WrappedLogger, method_name: str, event_dict: EventDict) -> EventDict:
     """Add correlation ID to log events.
 
     Args:
@@ -62,8 +60,8 @@ def add_correlation_id(
         Event dictionary with correlation_id added
     """
     # Get correlation ID from thread-local storage or generate new one
-    if 'correlation_id' not in event_dict:
-        event_dict['correlation_id'] = str(uuid.uuid4())
+    if "correlation_id" not in event_dict:
+        event_dict["correlation_id"] = str(uuid.uuid4())
     return event_dict
 
 
@@ -108,7 +106,7 @@ def setup_logging(
         log_file,
         maxBytes=max_bytes,
         backupCount=backup_count,
-        encoding='utf-8',
+        encoding="utf-8",
     )
     file_handler.setLevel(getattr(logging, log_level.upper()))
     handlers.append(file_handler)
@@ -143,9 +141,7 @@ def setup_logging(
     # Add final renderer
     # Console: colorful key-value output
     # File: JSON for machine parsing
-    processors.append(
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter
-    )
+    processors.append(structlog.stdlib.ProcessorFormatter.wrap_for_formatter)
 
     # Configure structlog
     structlog.configure(
@@ -188,8 +184,8 @@ def get_logger(
     Returns:
         Configured structlog logger for the component
     """
-    log_level = log_level or os.getenv('KIZUNA_LOG_LEVEL', 'INFO')
-    log_dir = log_dir or os.getenv('KIZUNA_LOG_DIR', 'logs')
+    log_level = log_level or os.getenv("KIZUNA_LOG_LEVEL", "INFO")
+    log_dir = log_dir or os.getenv("KIZUNA_LOG_DIR", "logs")
 
     return setup_logging(
         log_level=log_level,
@@ -202,32 +198,32 @@ def get_logger(
 # Pre-configured loggers for common components
 def get_ingestion_logger() -> structlog.BoundLogger:
     """Get logger for ingestion components."""
-    return get_logger('ingestion')
+    return get_logger("ingestion")
 
 
 def get_engine_logger() -> structlog.BoundLogger:
     """Get logger for embedding engine."""
-    return get_logger('engine')
+    return get_logger("engine")
 
 
 def get_privacy_logger() -> structlog.BoundLogger:
     """Get logger for privacy layer."""
-    return get_logger('privacy')
+    return get_logger("privacy")
 
 
 def get_database_logger() -> structlog.BoundLogger:
     """Get logger for database operations."""
-    return get_logger('database')
+    return get_logger("database")
 
 
 def get_anomaly_logger() -> structlog.BoundLogger:
     """Get logger for anomaly detection."""
-    return get_logger('anomaly')
+    return get_logger("anomaly")
 
 
 def get_dashboard_logger() -> structlog.BoundLogger:
     """Get logger for dashboard."""
-    return get_logger('dashboard')
+    return get_logger("dashboard")
 
 
 # Context manager for correlation ID
@@ -245,12 +241,10 @@ class CorrelationContext:
 
     def __enter__(self) -> str:
         """Enter correlation context."""
-        self._token = structlog.contextvars.bind_contextvars(
-            correlation_id=self.correlation_id
-        )
+        self._token = structlog.contextvars.bind_contextvars(correlation_id=self.correlation_id)
         return self.correlation_id
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         """Exit correlation context."""
         if self._token is not None:
-            structlog.contextvars.unbind_contextvars('correlation_id')
+            structlog.contextvars.unbind_contextvars("correlation_id")

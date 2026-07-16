@@ -76,9 +76,7 @@ class BackpressureConfig(BaseModel):
 
     enabled: bool = True
     max_queue_size: int = Field(default=1000, ge=1)
-    policy: str = Field(
-        default="newest_wins", pattern="^(newest_wins|oldest_wins|drop_random)$"
-    )
+    policy: str = Field(default="newest_wins", pattern="^(newest_wins|oldest_wins|drop_random)$")
 
 
 class IngestionConfig(BaseModel):
@@ -89,9 +87,7 @@ class IngestionConfig(BaseModel):
     video: VideoConfig = Field(default_factory=VideoConfig)
     audio: AudioConfig = Field(default_factory=AudioConfig)
     environmental: EnvironmentalConfig = Field(default_factory=EnvironmentalConfig)
-    temporal_alignment: TemporalAlignmentConfig = Field(
-        default_factory=TemporalAlignmentConfig
-    )
+    temporal_alignment: TemporalAlignmentConfig = Field(default_factory=TemporalAlignmentConfig)
     backpressure: BackpressureConfig = Field(default_factory=BackpressureConfig)
 
 
@@ -456,9 +452,7 @@ class ConfigManager:
         """
         return KizunaConfig(**config_dict)
 
-    def merge(
-        self, base_config: Dict[str, Any], override_config: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def merge(self, base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]:
         """Merge two configuration dictionaries (deep merge).
 
         Args:
