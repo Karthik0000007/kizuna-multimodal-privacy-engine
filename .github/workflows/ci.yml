@@ -103,7 +103,7 @@ jobs:
       
       - name: Validate docker-compose
         run: |
-          docker-compose config
+          docker compose config
         if: hashFiles('docker-compose.yml') != ''
 
   security:
