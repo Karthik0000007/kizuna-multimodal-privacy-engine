@@ -47,7 +47,7 @@ def generate_tsne_data():
             "tsne_2": y,
             "Event Type": labels,
             "Source Node": nodes,
-            "Size": [10 if l == "normal" else 20 for l in labels],
+            "Size": [10 if label == "normal" else 20 for label in labels],
         }
     )
     return df

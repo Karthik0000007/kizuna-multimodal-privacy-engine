@@ -6,7 +6,6 @@ Requires: cmake, C++ compiler, pybind11
 """
 
 import argparse
-import os
 import platform
 import shutil
 import subprocess
@@ -95,7 +94,7 @@ def clean_build_dir(build_dir: Path):
 
 def run_cmake_configure(src_dir: Path, build_dir: Path, build_type: str) -> bool:
     """Run CMake configuration."""
-    print(f"\nConfiguring with CMake...")
+    print("\nConfiguring with CMake...")
     print(f"  Source: {src_dir}")
     print(f"  Build: {build_dir}")
     print(f"  Type: {build_type}")
@@ -117,7 +116,7 @@ def run_cmake_configure(src_dir: Path, build_dir: Path, build_type: str) -> bool
             print("  Using default Visual Studio generator")
 
     try:
-        result = subprocess.run(
+        subprocess.run(
             cmd,
             cwd=build_dir,
             capture_output=True,
@@ -135,7 +134,7 @@ def run_cmake_configure(src_dir: Path, build_dir: Path, build_type: str) -> bool
 
 def run_cmake_build(build_dir: Path, build_type: str, verbose: bool = False) -> bool:
     """Run CMake build."""
-    print(f"\nBuilding...")
+    print("\nBuilding...")
 
     cmd = [
         "cmake",
@@ -176,7 +175,7 @@ def run_cmake_build(build_dir: Path, build_type: str, verbose: bool = False) -> 
 
 def install_extension(build_dir: Path, install_dir: Path) -> bool:
     """Install the built extension to the install directory."""
-    print(f"\nInstalling extension...")
+    print("\nInstalling extension...")
     print(f"  From: {build_dir}")
     print(f"  To: {install_dir}")
 
@@ -211,12 +210,12 @@ def install_extension(build_dir: Path, install_dir: Path) -> bool:
 
 def test_extension() -> bool:
     """Test that the extension can be imported."""
-    print(f"\nTesting extension...")
+    print("\nTesting extension...")
 
     try:
         import kizuna_native
 
-        print(f"✓ Extension imported successfully")
+        print("✓ Extension imported successfully")
         print(f"  Implementation: {kizuna_native.get_implementation_info()}")
 
         # Quick functionality test

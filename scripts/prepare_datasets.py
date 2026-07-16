@@ -9,7 +9,6 @@ Downloads and prepares public datasets:
 import argparse
 import sys
 from pathlib import Path
-from typing import List
 
 # Add src to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -109,7 +108,7 @@ def download_urbansound8k(data_dir: Path) -> None:
     logger.info("urbansound8k_manual_download_required")
 
 
-def prepare_datasets(data_dir: Path, datasets: List[str]) -> None:
+def prepare_datasets(data_dir: Path, datasets: list[str]) -> None:
     """Prepare downloaded datasets for use with Kizuna.
 
     Args:

@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 from qdrant_client import QdrantClient
@@ -36,11 +36,11 @@ class QdrantStore(VectorStore):
     def delete_collection(self) -> None:
         self.client.delete_collection(self.collection_name)
 
-    def get_collection_info(self) -> Dict[str, Any]:
+    def get_collection_info(self) -> dict[str, Any]:
         info = self.client.get_collection(self.collection_name)
         return info.model_dump()
 
-    def insert(self, vector: np.ndarray, metadata: Dict[str, Any]) -> str:
+    def insert(self, vector: np.ndarray, metadata: dict[str, Any]) -> str:
         point_id = str(uuid.uuid4())
 
         # Validate metadata with Pydantic
@@ -55,8 +55,8 @@ class QdrantStore(VectorStore):
         return point_id
 
     def search(
-        self, query: np.ndarray, top_k: int = 10, filters: Optional[Dict[str, Any]] = None
-    ) -> List[SearchResult]:
+        self, query: np.ndarray, top_k: int = 10, filters: dict[str, Any] | None = None
+    ) -> list[SearchResult]:
         query_filter = None
         if filters:
             conditions = []

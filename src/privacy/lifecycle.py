@@ -10,7 +10,6 @@ information (raw sensor data) is destroyed immediately after it's no longer need
 
 import time
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 
@@ -152,7 +151,7 @@ class PayloadLifecycle:
             except Exception as e:
                 logger.error("lifecycle_embedding_failed", error=str(e))
                 exception_occurred = e
-                raise LifecycleException(f"Embedding extraction failed: {e}")
+                raise LifecycleException(f"Embedding extraction failed: {e}") from e
 
             # Stage 2: Apply DP noise
             stage_start = time.perf_counter()
@@ -177,7 +176,7 @@ class PayloadLifecycle:
             except Exception as e:
                 logger.error("lifecycle_dp_noise_failed", error=str(e))
                 exception_occurred = e
-                raise LifecycleException(f"DP noise application failed: {e}")
+                raise LifecycleException(f"DP noise application failed: {e}") from e
 
         finally:
             # Stage 3: CRITICAL - Wipe raw data (ALWAYS executed, even on error)
@@ -205,7 +204,7 @@ class PayloadLifecycle:
                 raise LifecycleException(
                     f"CRITICAL: Memory wipe failed: {wipe_error}. "
                     f"Raw data may still exist in memory!"
-                )
+                ) from wipe_error
 
             # Stage 4: Nullify references
             self._nullify_payload_fields(payload)
@@ -372,14 +371,14 @@ def main() -> None:
             missing_models.append(model_path)
 
     if missing_models:
-        print(f"\n✗ Models not found:")
+        print("\n✗ Models not found:")
         for path in missing_models:
             print(f"  {path}")
         print("\nPlease run model export scripts first.")
         return
 
     # Initialize embedding engine
-    print(f"\nInitializing embedding engine...")
+    print("\nInitializing embedding engine...")
     embedding_engine = EmbeddingEngine(
         vision_model_path=vision_model,
         audio_model_path=audio_model,
@@ -388,10 +387,10 @@ def main() -> None:
         fusion_model_1024_path=fusion_1024,
         fusion_model_1536_path=fusion_1536,
     )
-    print(f"✓ Embedding engine initialized")
+    print("✓ Embedding engine initialized")
 
     # Initialize DP noise adder
-    print(f"\nInitializing DP noise adder...")
+    print("\nInitializing DP noise adder...")
     print(f"  Epsilon: {args.epsilon}")
     print(f"  Sensitivity: {args.sensitivity}")
 
@@ -400,10 +399,10 @@ def main() -> None:
         epsilon=args.epsilon,
         sensitivity=args.sensitivity,
     )
-    print(f"✓ DP noise adder initialized")
+    print("✓ DP noise adder initialized")
 
     # Initialize lifecycle manager
-    print(f"\nInitializing lifecycle manager...")
+    print("\nInitializing lifecycle manager...")
     print(f"  Native wiper: {args.use_native}")
 
     lifecycle = PayloadLifecycle(
@@ -415,7 +414,7 @@ def main() -> None:
     )
 
     stats = lifecycle.get_stats()
-    print(f"✓ Lifecycle manager initialized")
+    print("✓ Lifecycle manager initialized")
     print(f"  Wiper: {stats['wiper_type']}")
     print(f"  Using native: {stats['using_native']}")
     print(f"  DP mechanism: {stats['dp_mechanism']}")
@@ -464,10 +463,10 @@ def main() -> None:
         if i == 0:
             # Print detailed info for first payload
             print(f"\nPayload {i + 1}:")
-            print(f"  Stage latencies:")
+            print("  Stage latencies:")
             for stage, latency in result.stage_latencies.items():
                 print(f"    {stage}: {latency:.2f}ms")
-            print(f"  Wipe results:")
+            print("  Wipe results:")
             for wipe_result in result.wipe_results:
                 print(
                     f"    {wipe_result.array_shape} {wipe_result.array_dtype}: "
@@ -480,13 +479,13 @@ def main() -> None:
     print(f"\n{'=' * 70}")
     print(f"Processing Summary ({args.num_payloads} payloads)")
     print(f"{'=' * 70}")
-    print(f"Total Processing:")
+    print("Total Processing:")
     print(f"  Mean: {np.mean(total_latencies):.2f}ms")
     print(f"  Median: {np.percentile(total_latencies, 50):.2f}ms")
     print(f"  P95: {np.percentile(total_latencies, 95):.2f}ms")
     print(f"  P99: {np.percentile(total_latencies, 99):.2f}ms")
 
-    print(f"\nWipe Operations:")
+    print("\nWipe Operations:")
     print(f"  Mean: {np.mean(wipe_latencies):.2f}ms")
     print(f"  Median: {np.percentile(wipe_latencies, 50):.2f}ms")
     print(f"  P95: {np.percentile(wipe_latencies, 95):.2f}ms")
@@ -496,17 +495,17 @@ def main() -> None:
     target_wipe = 5.0  # ms
     mean_wipe = np.mean(wipe_latencies)
 
-    print(f"\nWipe Performance Target:")
+    print("\nWipe Performance Target:")
     print(f"  Target: < {target_wipe}ms")
     print(f"  Actual: {mean_wipe:.2f}ms")
 
     if mean_wipe < target_wipe:
-        print(f"  ✓ Target met!")
+        print("  ✓ Target met!")
     else:
         print(f"  ✗ Target missed by {mean_wipe - target_wipe:.2f}ms")
 
-    print(f"\n✓ All raw data successfully destroyed")
-    print(f"✓ Demo complete")
+    print("\n✓ All raw data successfully destroyed")
+    print("✓ Demo complete")
 
 
 if __name__ == "__main__":

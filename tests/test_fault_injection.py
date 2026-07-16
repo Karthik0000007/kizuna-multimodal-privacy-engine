@@ -1,10 +1,7 @@
-import gc
-
 import numpy as np
 import pytest
 
 from src.anomaly.detector import AnomalyOrchestrator
-from src.anomaly.models import PrivacyEvent
 from src.database.faiss_store import FAISSStore
 
 

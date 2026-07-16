@@ -8,10 +8,10 @@ Generates synthetic video frames with various scenarios:
 """
 
 import time
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Generator, List, Optional, Tuple
 
 import cv2
 import numpy as np
@@ -54,7 +54,7 @@ class VideoSimulator:
     def __init__(
         self,
         fps: int = 15,
-        resolution: Tuple[int, int] = (320, 320),
+        resolution: tuple[int, int] = (320, 320),
         scenario: VideoScenario = VideoScenario.PERSON_WALKING,
         enable_noise: bool = True,
         noise_level: float = 0.02,
@@ -99,9 +99,7 @@ class VideoSimulator:
             scenario=scenario.value,
         )
 
-    def generate(
-        self, duration_seconds: Optional[float] = None
-    ) -> Generator[VideoFrame, None, None]:
+    def generate(self, duration_seconds: float | None = None) -> Generator[VideoFrame, None, None]:
         """Generate video frames.
 
         Args:

@@ -1,6 +1,3 @@
-import numpy as np
-import pytest
-
 from src.anomaly.scenarios import JapanScenario, build_alert_payload, get_japanese_alert
 
 

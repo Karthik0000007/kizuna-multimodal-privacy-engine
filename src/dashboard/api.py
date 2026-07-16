@@ -1,11 +1,11 @@
 import threading
 import time
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from dataclasses import dataclass
+from typing import Any
 
 import numpy as np
 
-from src.database.base import SearchResult, VectorStore
+from src.database.base import VectorStore
 
 
 @dataclass
@@ -42,9 +42,9 @@ class DashboardAPI:
         self.historical_ttl = historical_ttl
         self.max_requests_per_sec = max_requests_per_sec
 
-        self._cache: Dict[str, CacheEntry] = {}
+        self._cache: dict[str, CacheEntry] = {}
         self._lock = threading.Lock()
-        self._request_timestamps: List[float] = []
+        self._request_timestamps: list[float] = []
 
     # ------------------------------------------------------------------
     # Rate Limiting
@@ -65,7 +65,7 @@ class DashboardAPI:
     # Caching
     # ------------------------------------------------------------------
 
-    def _get_cached(self, key: str) -> Optional[Any]:
+    def _get_cached(self, key: str) -> Any | None:
         entry = self._cache.get(key)
         if entry and time.time() < entry.expires_at:
             return entry.data
@@ -78,7 +78,7 @@ class DashboardAPI:
     # Live Data Endpoints
     # ------------------------------------------------------------------
 
-    def get_recent_events(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_recent_events(self, limit: int = 50) -> list[dict[str, Any]]:
         """Fetch the most recent events from the vector store (live TTL)."""
         if not self._check_rate_limit():
             cached = self._get_cached("recent_events")
@@ -109,14 +109,14 @@ class DashboardAPI:
         self._set_cached("recent_events", events, self.live_ttl)
         return events
 
-    def get_node_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_node_status(self) -> dict[str, dict[str, Any]]:
         """Compute per-node status from recent events (live TTL)."""
         cached = self._get_cached("node_status")
         if cached is not None:
             return cached
 
         events = self.get_recent_events(limit=200)
-        nodes: Dict[str, Dict[str, Any]] = {}
+        nodes: dict[str, dict[str, Any]] = {}
 
         for evt in events:
             node_id = evt["source_node_id"]
@@ -141,10 +141,10 @@ class DashboardAPI:
 
     def get_anomaly_history(
         self,
-        event_type: Optional[str] = None,
-        source_node: Optional[str] = None,
+        event_type: str | None = None,
+        source_node: str | None = None,
         min_confidence: float = 0.0,
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Fetch anomaly history with filters (historical TTL)."""
         cache_key = f"anomaly_history:{event_type}:{source_node}:{min_confidence}"
         cached = self._get_cached(cache_key)
@@ -181,7 +181,7 @@ class DashboardAPI:
         self._set_cached(cache_key, anomalies, self.historical_ttl)
         return anomalies
 
-    def get_system_health(self) -> Dict[str, Any]:
+    def get_system_health(self) -> dict[str, Any]:
         """Return system-level health metrics (live TTL)."""
         cached = self._get_cached("system_health")
         if cached is not None:
@@ -205,7 +205,7 @@ class DashboardAPI:
         self._set_cached("system_health", health, self.live_ttl)
         return health
 
-    def get_privacy_budget_status(self) -> Dict[str, float]:
+    def get_privacy_budget_status(self) -> dict[str, float]:
         """Return privacy budget tracking (live TTL)."""
         cached = self._get_cached("privacy_budget")
         if cached is not None:

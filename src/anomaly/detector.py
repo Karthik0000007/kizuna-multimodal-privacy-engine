@@ -1,5 +1,4 @@
 import time
-from typing import List, Optional
 
 import numpy as np
 
@@ -7,7 +6,7 @@ from src.anomaly.classifier import AnomalyClassifier
 from src.anomaly.cluster_detector import ClusterAnomalyDetector
 from src.anomaly.density_detector import DensityAnomalyDetector
 from src.anomaly.knn_detector import KNNAnomalyDetector
-from src.anomaly.models import AnomalyResult, PrivacyEvent
+from src.anomaly.models import PrivacyEvent
 from src.database.base import VectorStore
 
 
@@ -33,7 +32,7 @@ class AnomalyOrchestrator:
         )
         self.classifier = AnomalyClassifier(vector_store)
 
-    def process(self, embedding: np.ndarray, source_node_id: str) -> Optional[PrivacyEvent]:
+    def process(self, embedding: np.ndarray, source_node_id: str) -> PrivacyEvent | None:
         """
         Process an embedding through the ensemble.
         Returns a PrivacyEvent if an anomaly is confirmed, else None.

@@ -77,9 +77,9 @@ def main():
     test_labels = [0] * len(domain_b_normal) + [1] * len(domain_b_anomalies)
 
     # Shuffle
-    combined = list(zip(test_embeddings, test_labels))
+    combined = list(zip(test_embeddings, test_labels, strict=False))
     np.random.shuffle(combined)
-    test_embeddings, test_labels = zip(*combined)
+    test_embeddings, test_labels = zip(*combined, strict=False)
 
     # A. Zero-shot transfer (Evaluating on Domain B without any Domain B knowledge)
     zero_shot_results = evaluator.evaluate_zero_shot(test_embeddings, test_labels)

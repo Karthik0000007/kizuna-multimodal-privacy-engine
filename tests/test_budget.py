@@ -272,7 +272,7 @@ class TestBudgetCeilingEnforcement:
     def test_budget_ceiling_exact(self, tracker):
         """Test that queries at exactly the ceiling are accepted, then budget exhausted."""
         # Use up entire budget
-        for i in range(10):
+        for _i in range(10):
             accepted = tracker.add_query(
                 epsilon=1.0,
                 delta=1e-5,
@@ -553,7 +553,7 @@ class TestPersistence:
         # Check file exists and contains data
         assert temp_budget_file.exists()
 
-        with open(temp_budget_file, "r") as f:
+        with open(temp_budget_file) as f:
             state = json.load(f)
 
         assert state["epsilon_spent"] == 3.0
@@ -610,7 +610,7 @@ class TestPersistence:
         )
 
         # Verify state is saved
-        with open(temp_budget_file, "r") as f:
+        with open(temp_budget_file) as f:
             state = json.load(f)
         assert state["epsilon_spent"] == 5.0
 
@@ -618,7 +618,7 @@ class TestPersistence:
         tracker_with_persistence.reset()
 
         # Verify state is cleared in file
-        with open(temp_budget_file, "r") as f:
+        with open(temp_budget_file) as f:
             state = json.load(f)
         assert state["epsilon_spent"] == 0.0
         assert len(state["queries"]) == 0

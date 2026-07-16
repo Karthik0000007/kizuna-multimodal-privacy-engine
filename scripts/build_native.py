@@ -55,7 +55,7 @@ def build_native_extension() -> bool:
                 capture_output=True,
                 text=True,
             )
-            print(f"✓ g++ compiler found")
+            print("✓ g++ compiler found")
         except FileNotFoundError:
             try:
                 result = subprocess.run(
@@ -63,7 +63,7 @@ def build_native_extension() -> bool:
                     capture_output=True,
                     text=True,
                 )
-                print(f"✓ clang++ compiler found")
+                print("✓ clang++ compiler found")
             except FileNotFoundError:
                 print("✗ No C++ compiler found (g++ or clang++)")
                 print("\nInstall a C++ compiler:")

@@ -36,9 +36,9 @@ def main():
 
     st.markdown(
         """
-    Welcome to the Kizuna Dashboard. This interface provides real-time monitoring 
+    Welcome to the Kizuna Dashboard. This interface provides real-time monitoring
     and historical analysis of edge-processed privacy events.
-    
+
     Please select a page from the sidebar to continue:
     - **Live Monitor**: Watch events stream in real time.
     - **Anomaly History**: Search and filter historical privacy alerts.

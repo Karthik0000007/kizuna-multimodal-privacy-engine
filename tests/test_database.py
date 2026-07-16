@@ -1,13 +1,11 @@
 import os
 import shutil
 import time
-from typing import Any, Dict
 
 import numpy as np
 import pytest
 
 from src.database.faiss_store import FAISSStore
-from src.database.metadata import MetadataFilter, PayloadMetadata
 from src.database.qdrant_client import QdrantStore
 
 

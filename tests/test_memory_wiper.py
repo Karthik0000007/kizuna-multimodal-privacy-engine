@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from src.privacy.memory_wiper import SamplingVerifier, SecureWiper, SecurityException, WipeResult
+from src.privacy.memory_wiper import SamplingVerifier, SecureWiper, WipeResult
 
 
 class TestSecureWiper:
@@ -40,7 +40,7 @@ class TestSecureWiper:
         assert isinstance(result, WipeResult)
         assert result.success is True
         assert result.verified is True
-        assert result.verification_passed == True  # Use == instead of is for boolean
+        assert result.verification_passed  # Use == instead of is for boolean
         assert result.array_shape == (5,)
         assert result.array_dtype == "float32"
         assert result.size_bytes == 20
@@ -176,7 +176,7 @@ class TestSecureWiper:
         assert result.size_bytes == 100 * 100 * 4
         assert result.duration_ms > 0
         assert result.verified is True
-        assert result.verification_passed == True  # Use == instead of is
+        assert result.verification_passed  # Use == instead of is
 
 
 class TestSamplingVerifier:
@@ -202,9 +202,9 @@ class TestSamplingVerifier:
         arr = np.zeros(10000, dtype=np.float32)
         passed, stats = verifier.verify(arr)
 
-        assert passed == True  # Use == instead of is
-        assert stats["sampled_all_zero"] == True  # Use == instead of is
-        assert stats["escalated_to_full"] == False  # Use == instead of is
+        assert passed  # Use == instead of is
+        assert stats["sampled_all_zero"]  # Use == instead of is
+        assert not stats["escalated_to_full"]  # Use == instead of is
         assert stats["total_elements"] == 10000
         assert stats["sample_size"] > 0
 
@@ -215,10 +215,10 @@ class TestSamplingVerifier:
         arr = np.ones(10000, dtype=np.float32)
         passed, stats = verifier.verify(arr)
 
-        assert passed == False  # Use == instead of is
-        assert stats["escalated_to_full"] == True  # Use == instead of is
+        assert not passed  # Use == instead of is
+        assert stats["escalated_to_full"]  # Use == instead of is
         assert "full_verification_all_zero" in stats
-        assert stats["full_verification_all_zero"] == False  # Use == instead of is
+        assert not stats["full_verification_all_zero"]  # Use == instead of is
 
     def test_verify_mostly_zeros(self):
         """Test verification with mostly zeros but some non-zero values."""
@@ -359,7 +359,7 @@ class TestEdgeCases:
         wiper = SecureWiper(verify=False)  # Disable verification
 
         base = np.random.randn(100, 100).astype(np.float32)
-        original_base = base.copy()
+        base.copy()
         noncontig = base[::2, ::2]  # Strided, non-contiguous
 
         # Note: For non-contiguous arrays, we should make a contiguous copy first

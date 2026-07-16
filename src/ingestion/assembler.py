@@ -6,9 +6,9 @@ while handling backpressure and queue management.
 
 import time
 from collections import deque
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum
-from typing import Deque, Dict, Generator, Optional
 
 from ..logger import get_ingestion_logger
 from .models import SensorPayload
@@ -73,7 +73,7 @@ class PayloadAssembler:
         self.backpressure_policy = backpressure_policy
         self.allow_partial_payloads = allow_partial_payloads
 
-        self.payload_queue: Deque[SensorPayload] = deque(maxlen=max_queue_size)
+        self.payload_queue: deque[SensorPayload] = deque(maxlen=max_queue_size)
         self.stats = AssemblerStats()
 
         logger.info(
@@ -84,7 +84,7 @@ class PayloadAssembler:
             allow_partial_payloads=allow_partial_payloads,
         )
 
-    def assemble(self, aligned_data: AlignedData) -> Optional[SensorPayload]:
+    def assemble(self, aligned_data: AlignedData) -> SensorPayload | None:
         """Assemble a SensorPayload from aligned multimodal data.
 
         Args:
@@ -204,7 +204,7 @@ class PayloadAssembler:
         self.payload_queue.append(payload)
         return True
 
-    def dequeue(self) -> Optional[SensorPayload]:
+    def dequeue(self) -> SensorPayload | None:
         """Remove and return the oldest payload from queue.
 
         Returns:
@@ -215,7 +215,7 @@ class PayloadAssembler:
         return None
 
     def stream(
-        self, aligner: TemporalAligner, duration_seconds: Optional[float] = None
+        self, aligner: TemporalAligner, duration_seconds: float | None = None
     ) -> Generator[SensorPayload, None, None]:
         """Stream assembled payloads from temporal aligner.
 
@@ -278,7 +278,7 @@ class PayloadAssembler:
         """
         return len(self.payload_queue) / self.max_queue_size
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get assembler statistics.
 
         Returns:
@@ -412,7 +412,7 @@ def main() -> None:
         aligner.cleanup_stale_data()
         time.sleep(0.1)
 
-    print(f"\nAssembler Statistics:")
+    print("\nAssembler Statistics:")
     stats = assembler.get_stats()
     for key, value in stats.items():
         if isinstance(value, float):

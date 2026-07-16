@@ -8,7 +8,6 @@ import argparse
 import sys
 import time
 from pathlib import Path
-from typing import List, Tuple
 
 import numpy as np
 import onnxruntime as ort
@@ -38,7 +37,7 @@ class CalibrationDataReaderBase(CalibrationDataReader):
         self,
         num_samples: int = 500,
         input_name: str = "input",
-        input_shape: Tuple[int, ...] = (1, 3, 224, 224),
+        input_shape: tuple[int, ...] = (1, 3, 224, 224),
         data_type: str = "vision",
     ) -> None:
         """Initialize calibration data reader.
@@ -180,7 +179,7 @@ def quantize_model(
 
     except Exception as e:
         logger.error("quantization_failed", error=str(e))
-        raise RuntimeError(f"Quantization failed: {e}")
+        raise RuntimeError(f"Quantization failed: {e}") from e
 
 
 def compare_models(
@@ -201,7 +200,7 @@ def compare_models(
         Dictionary with comparison metrics
     """
     logger.info("comparing_models", fp32_path=str(fp32_path), int8_path=str(int8_path))
-    print(f"\nComparing FP32 vs INT8 models...")
+    print("\nComparing FP32 vs INT8 models...")
 
     # Load models
     fp32_session = ort.InferenceSession(str(fp32_path), providers=["CPUExecutionProvider"])
@@ -465,7 +464,7 @@ def main() -> None:
         int8_size = int8_path.stat().st_size / 1024 / 1024
         size_reduction = (1 - int8_size / fp32_size) * 100
 
-        print(f"\nModel Sizes:")
+        print("\nModel Sizes:")
         print(f"  FP32: {fp32_size:.2f} MB")
         print(f"  INT8: {int8_size:.2f} MB")
         print(f"  Reduction: {size_reduction:.1f}%")

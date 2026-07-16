@@ -1,7 +1,5 @@
 """Unit tests for configuration management."""
 
-import os
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -142,7 +140,7 @@ class TestConfigManager:
         assert isinstance(config, KizunaConfig)
 
         # Verify generated file is valid YAML
-        with open(config_file, "r") as f:
+        with open(config_file) as f:
             loaded = yaml.safe_load(f)
             assert "system" in loaded
             assert "ingestion" in loaded

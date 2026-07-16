@@ -76,7 +76,7 @@ def generate_embedding(scenario_name, noise_scale):
 # --- Streaming Loop ---
 if st.session_state["streaming"]:
     budget_spent = 0.0
-    for i in range(100):
+    for _i in range(100):
         if not st.session_state["streaming"]:
             break
 

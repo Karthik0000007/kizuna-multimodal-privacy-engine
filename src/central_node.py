@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn
 
@@ -76,8 +75,7 @@ class CentralNodeHandler(BaseHTTPRequestHandler):
         # Only log non-200 or errors to keep it clean
         if args[1] != "200":
             logger.info(
-                "%s - - [%s] %s"
-                % (self.address_string(), self.log_date_time_string(), format % args)
+                f"{self.address_string()} - - [{self.log_date_time_string()}] {format % args}"
             )
 
 

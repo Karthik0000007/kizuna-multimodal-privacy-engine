@@ -112,14 +112,14 @@ def download_mobileclip() -> nn.Module:
         logger.info("mobileclip_downloaded")
         return model
 
-    except ImportError:
+    except ImportError as e:
         logger.error("transformers_not_installed")
         raise ImportError(
-            "transformers library not installed. " "Install with: pip install transformers"
-        )
+            "transformers library not installed. Install with: pip install transformers"
+        ) from e
     except Exception as e:
         logger.error("mobileclip_download_failed", error=str(e))
-        raise RuntimeError(f"Failed to download MobileCLIP: {e}")
+        raise RuntimeError(f"Failed to download MobileCLIP: {e}") from e
 
 
 def download_resnet18() -> nn.Module:
@@ -164,7 +164,7 @@ def download_resnet18() -> nn.Module:
 
     except Exception as e:
         logger.error("resnet18_download_failed", error=str(e))
-        raise RuntimeError(f"Failed to download ResNet-18: {e}")
+        raise RuntimeError(f"Failed to download ResNet-18: {e}") from e
 
 
 def create_simple_model(embed_dim: int = 512) -> nn.Module:
@@ -232,7 +232,7 @@ def export_to_onnx(
 
     except Exception as e:
         logger.error("onnx_export_failed", error=str(e))
-        raise RuntimeError(f"ONNX export failed: {e}")
+        raise RuntimeError(f"ONNX export failed: {e}") from e
 
 
 def simplify_onnx(input_path: Path, output_path: Path) -> None:
@@ -246,7 +246,7 @@ def simplify_onnx(input_path: Path, output_path: Path) -> None:
         RuntimeError: If simplification fails
     """
     logger.info("simplifying_onnx", input_path=str(input_path))
-    print(f"\nSimplifying ONNX model...")
+    print("\nSimplifying ONNX model...")
 
     try:
         # Load ONNX model
@@ -288,7 +288,7 @@ def validate_onnx_export(
         True if validation passes
     """
     logger.info("validating_onnx_export", onnx_path=str(onnx_path))
-    print(f"\nValidating ONNX export...")
+    print("\nValidating ONNX export...")
 
     try:
         import onnxruntime as ort

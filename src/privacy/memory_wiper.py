@@ -7,7 +7,6 @@ through memory forensics or system dumps. Critical for APPI compliance.
 import ctypes
 import time
 from dataclasses import dataclass
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -39,7 +38,7 @@ class WipeResult:
     size_bytes: int
     duration_ms: float
     verified: bool
-    verification_passed: Optional[bool] = None
+    verification_passed: bool | None = None
 
 
 class SecurityException(Exception):
@@ -354,7 +353,7 @@ def main() -> None:
     print("=" * 70)
 
     # Initialize wiper
-    print(f"\nInitializing SecureWiper...")
+    print("\nInitializing SecureWiper...")
     print(f"  Verification: {args.verify}")
     print(f"  Overwrite passes: {args.passes}")
 
@@ -379,7 +378,7 @@ def main() -> None:
     print(f"\nWiping {len(arrays)} arrays...")
     results = wiper.wipe_multiple(*arrays)
 
-    print(f"\nWipe Results:")
+    print("\nWipe Results:")
     for i, result in enumerate(results):
         print(f"  Array {i}:")
         print(f"    Success: {result.success}")
@@ -390,7 +389,7 @@ def main() -> None:
             print(f"    Verification: {'PASSED' if result.verification_passed else 'FAILED'}")
 
     # Verify all arrays are now zero
-    print(f"\nPost-wipe verification:")
+    print("\nPost-wipe verification:")
     for i, arr in enumerate(arrays):
         all_zero = np.all(arr == 0)
         mean = arr.mean()
@@ -402,7 +401,7 @@ def main() -> None:
     total_duration = sum(r.duration_ms for r in results)
     throughput_mbps = (total_bytes / 1024 / 1024) / (total_duration / 1000)
 
-    print(f"\nPerformance Summary:")
+    print("\nPerformance Summary:")
     print(f"  Total bytes wiped: {total_bytes / 1024 / 1024:.2f} MB")
     print(f"  Total duration: {total_duration:.2f}ms")
     print(f"  Throughput: {throughput_mbps:.2f} MB/s")
@@ -425,11 +424,11 @@ def main() -> None:
     # Verify with sampling
     passed, stats = sampling_verifier.verify(large_array)
 
-    print(f"\nSampling Verification Results:")
+    print("\nSampling Verification Results:")
     print(f"  Passed: {passed}")
     print(f"  Total elements: {stats['total_elements']:,}")
     print(f"  Sample size: {stats['sample_size']:,}")
-    print(f"  Sample rate: {stats['sample_rate_actual']*100:.1f}%")
+    print(f"  Sample rate: {stats['sample_rate_actual'] * 100:.1f}%")
     print(f"  Duration: {stats['duration_ms']:.2f}ms")
     print(f"  Escalated to full: {stats['escalated_to_full']}")
 

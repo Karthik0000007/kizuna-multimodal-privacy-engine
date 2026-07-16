@@ -6,7 +6,6 @@ to embedding vectors to achieve (ε)-DP or (ε,δ)-DP guarantees.
 
 import math
 from enum import Enum
-from typing import Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -290,7 +289,7 @@ class DPNoiseAdder:
         mechanism: str | DPMechanism,
         epsilon: float,
         sensitivity: float,
-        delta: Optional[float] = None,
+        delta: float | None = None,
     ) -> None:
         """Initialize DP noise adder.
 
@@ -426,7 +425,7 @@ def main() -> None:
     )
 
     guarantee = dp_adder.get_privacy_guarantee()
-    print(f"\nPrivacy Guarantee:")
+    print("\nPrivacy Guarantee:")
     print(f"  Mechanism: {guarantee['mechanism']}")
     print(f"  ε: {guarantee['epsilon']}")
     print(f"  δ: {guarantee['delta']}")
@@ -440,7 +439,7 @@ def main() -> None:
     print(f"  Original norm: {np.linalg.norm(original):.6f}")
 
     # Add noise
-    print(f"\nAdding DP noise...")
+    print("\nAdding DP noise...")
     noised = dp_adder.add_noise(original)
 
     print(f"  Noised norm: {np.linalg.norm(noised):.6f}")
@@ -449,7 +448,7 @@ def main() -> None:
     cosine_sim = np.dot(original, noised) / (np.linalg.norm(original) * np.linalg.norm(noised))
     l2_distance = np.linalg.norm(original - noised)
 
-    print(f"\nSimilarity Metrics:")
+    print("\nSimilarity Metrics:")
     print(f"  Cosine similarity: {cosine_sim:.6f}")
     print(f"  L2 distance: {l2_distance:.6f}")
 
@@ -464,7 +463,7 @@ def main() -> None:
 
     noise_samples = np.array(noise_samples)
 
-    print(f"  Noise magnitude statistics:")
+    print("  Noise magnitude statistics:")
     print(f"    Mean: {np.mean(noise_samples):.6f}")
     print(f"    Std: {np.std(noise_samples):.6f}")
     print(f"    Min: {np.min(noise_samples):.6f}")
@@ -473,7 +472,7 @@ def main() -> None:
     print(f"    P95: {np.percentile(noise_samples, 95):.6f}")
 
     # Test batch processing
-    print(f"\nTesting batch processing (10 vectors)...")
+    print("\nTesting batch processing (10 vectors)...")
     batch = np.random.randn(10, args.dimension).astype(np.float32)
     batch = batch / np.linalg.norm(batch, axis=1, keepdims=True)
 
@@ -484,7 +483,7 @@ def main() -> None:
 
     # Calculate average cosine similarity for batch
     cosine_sims = []
-    for orig, nois in zip(batch, noised_batch):
+    for orig, nois in zip(batch, noised_batch, strict=False):
         sim = np.dot(orig, nois) / (np.linalg.norm(orig) * np.linalg.norm(nois))
         cosine_sims.append(sim)
 

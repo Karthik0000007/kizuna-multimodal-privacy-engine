@@ -1,7 +1,7 @@
 import json
 import os
 import uuid
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import faiss
 import numpy as np
@@ -22,9 +22,9 @@ class FAISSStore(VectorStore):
         self.max_size = max_size
         self.dimension = None
         self.index = None
-        self.metadata_store: Dict[str, Dict[str, Any]] = {}
-        self.id_to_index: Dict[str, int] = {}
-        self.index_to_id: Dict[int, str] = {}
+        self.metadata_store: dict[str, dict[str, Any]] = {}
+        self.id_to_index: dict[str, int] = {}
+        self.index_to_id: dict[int, str] = {}
         self.current_count = 0
 
         self._load()
@@ -49,10 +49,10 @@ class FAISSStore(VectorStore):
         if os.path.exists(self.metadata_path):
             os.remove(self.metadata_path)
 
-    def get_collection_info(self) -> Dict[str, Any]:
+    def get_collection_info(self) -> dict[str, Any]:
         return {"dimension": self.dimension, "count": self.current_count, "max_size": self.max_size}
 
-    def insert(self, vector: np.ndarray, metadata: Dict[str, Any]) -> str:
+    def insert(self, vector: np.ndarray, metadata: dict[str, Any]) -> str:
         if self.index is None:
             raise ValueError("Collection not created. Call create_collection first.")
 
@@ -84,8 +84,8 @@ class FAISSStore(VectorStore):
         return point_id
 
     def search(
-        self, query: np.ndarray, top_k: int = 10, filters: Optional[Dict[str, Any]] = None
-    ) -> List[SearchResult]:
+        self, query: np.ndarray, top_k: int = 10, filters: dict[str, Any] | None = None
+    ) -> list[SearchResult]:
         if self.index is None or self.current_count == 0:
             return []
 
@@ -177,7 +177,7 @@ class FAISSStore(VectorStore):
     def _load(self) -> None:
         if os.path.exists(self.index_path) and os.path.exists(self.metadata_path):
             self.index = faiss.read_index(self.index_path)
-            with open(self.metadata_path, "r") as f:
+            with open(self.metadata_path) as f:
                 data = json.load(f)
                 self.dimension = data.get("dimension")
                 self.current_count = data.get("current_count", 0)

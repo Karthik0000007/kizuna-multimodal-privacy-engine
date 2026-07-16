@@ -6,8 +6,6 @@ import urllib.request
 import numpy as np
 import pytest
 
-import src.central_node as central_module
-from src.central_node import CentralNodeHandler, ThreadedHTTPServer
 from src.central_node import main as central_main
 
 

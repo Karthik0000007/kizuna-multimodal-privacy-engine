@@ -1,7 +1,7 @@
 """Unit tests for payload lifecycle manager."""
 
 import time
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import numpy as np
 import pytest
@@ -9,7 +9,6 @@ import pytest
 from src.engine.engine import UnifiedEmbedding
 from src.ingestion.models import SensorPayload
 from src.privacy.lifecycle import LifecycleException, LifecycleResult, PayloadLifecycle
-from src.privacy.memory_wiper import WipeResult
 
 
 @pytest.fixture
@@ -110,8 +109,8 @@ class TestPayloadLifecycle:
         )
 
         # Store original values to verify they're wiped
-        video_data = sample_payload.video_frame.copy()
-        audio_data = sample_payload.audio_chunk.copy()
+        sample_payload.video_frame.copy()
+        sample_payload.audio_chunk.copy()
 
         result = lifecycle.process(sample_payload)
 

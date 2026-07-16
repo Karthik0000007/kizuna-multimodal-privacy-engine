@@ -1,6 +1,5 @@
 import json
 import os
-from typing import List, Tuple
 
 import numpy as np
 
@@ -9,7 +8,7 @@ from src.anomaly.detector import AnomalyOrchestrator
 from src.database.faiss_store import FAISSStore
 
 
-def generate_labeled_data(num_samples=100) -> Tuple[List[np.ndarray], List[int]]:
+def generate_labeled_data(num_samples=100) -> tuple[list[np.ndarray], list[int]]:
     # Create base cluster
     center = np.random.rand(256)
     center /= np.linalg.norm(center)
@@ -34,7 +33,7 @@ def generate_labeled_data(num_samples=100) -> Tuple[List[np.ndarray], List[int]]
     return embeddings, labels
 
 
-def inject_dp_noise(embeddings: List[np.ndarray], epsilon: float) -> List[np.ndarray]:
+def inject_dp_noise(embeddings: list[np.ndarray], epsilon: float) -> list[np.ndarray]:
     if epsilon == 0 or epsilon > 100:
         return embeddings  # no noise for infinity/high eps
 

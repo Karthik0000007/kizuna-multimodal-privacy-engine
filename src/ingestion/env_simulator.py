@@ -9,9 +9,9 @@ Generates synthetic environmental sensor readings:
 """
 
 import time
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Generator, List, Optional
 
 import numpy as np
 
@@ -60,7 +60,7 @@ class EnvironmentalSimulator:
 
     def __init__(
         self,
-        sensors: Optional[List[str]] = None,
+        sensors: list[str] | None = None,
         polling_rate: float = 1.0,
         scenario: EnvironmentalScenario = EnvironmentalScenario.NORMAL_INDOOR,
         enable_noise: bool = True,
@@ -120,7 +120,7 @@ class EnvironmentalSimulator:
         )
 
     def generate(
-        self, duration_seconds: Optional[float] = None
+        self, duration_seconds: float | None = None
     ) -> Generator[SensorReading, None, None]:
         """Generate environmental sensor readings.
 
@@ -183,7 +183,7 @@ class EnvironmentalSimulator:
 
         logger.info("env_generation_completed", total_readings=self.reading_number)
 
-    def _generate_readings(self) -> Dict[str, float]:
+    def _generate_readings(self) -> dict[str, float]:
         """Generate sensor readings based on scenario."""
         if self.scenario == EnvironmentalScenario.NORMAL_INDOOR:
             return self._generate_normal_indoor()
@@ -204,7 +204,7 @@ class EnvironmentalSimulator:
         else:
             raise ValueError(f"Unsupported scenario: {self.scenario}")
 
-    def _generate_normal_indoor(self) -> Dict[str, float]:
+    def _generate_normal_indoor(self) -> dict[str, float]:
         """Generate normal indoor environment readings."""
         # Apply day/night cycle
         temp_offset = self._get_temperature_offset()
@@ -224,7 +224,7 @@ class EnvironmentalSimulator:
             "air_quality": air_quality,
         }
 
-    def _generate_occupied_room(self) -> Dict[str, float]:
+    def _generate_occupied_room(self) -> dict[str, float]:
         """Generate occupied room readings (higher temperature, more motion)."""
         temp_offset = self._get_temperature_offset()
         light_multiplier = self._get_light_multiplier()
@@ -252,7 +252,7 @@ class EnvironmentalSimulator:
             "air_quality": air_quality,
         }
 
-    def _generate_empty_room(self) -> Dict[str, float]:
+    def _generate_empty_room(self) -> dict[str, float]:
         """Generate empty room readings (stable, no motion)."""
         temp_offset = self._get_temperature_offset()
         light_multiplier = self._get_light_multiplier()
@@ -271,7 +271,7 @@ class EnvironmentalSimulator:
             "air_quality": air_quality,
         }
 
-    def _generate_hvac_failure(self) -> Dict[str, float]:
+    def _generate_hvac_failure(self) -> dict[str, float]:
         """Generate HVAC failure readings (temperature drift)."""
         # Temperature drifts up over time
         temp_drift = self.reading_number * 0.05
@@ -292,7 +292,7 @@ class EnvironmentalSimulator:
             "air_quality": min(air_quality, 150.0),  # Worsening air quality
         }
 
-    def _generate_fire_emergency(self) -> Dict[str, float]:
+    def _generate_fire_emergency(self) -> dict[str, float]:
         """Generate fire emergency readings (rapid temperature spike)."""
         # Rapid temperature increase
         temperature = self._base_temperature + (self.reading_number * 0.5) + np.random.normal(0, 3)
@@ -317,7 +317,7 @@ class EnvironmentalSimulator:
             "air_quality": min(air_quality, 500.0),  # Max AQI
         }
 
-    def _generate_window_open(self) -> Dict[str, float]:
+    def _generate_window_open(self) -> dict[str, float]:
         """Generate readings with window open (external influence)."""
         temp_offset = self._get_temperature_offset()
 
@@ -344,7 +344,7 @@ class EnvironmentalSimulator:
             "air_quality": air_quality,
         }
 
-    def _generate_night_time(self) -> Dict[str, float]:
+    def _generate_night_time(self) -> dict[str, float]:
         """Generate nighttime readings (cooler, dark, minimal motion)."""
         temperature = self._base_temperature - 3.0 + np.sin(self.reading_number * 0.01) * 1
         humidity = self._base_humidity + 5.0 + np.sin(self.reading_number * 0.02) * 3
@@ -360,7 +360,7 @@ class EnvironmentalSimulator:
             "air_quality": air_quality,
         }
 
-    def _generate_crowded_space(self) -> Dict[str, float]:
+    def _generate_crowded_space(self) -> dict[str, float]:
         """Generate crowded space readings (hot, stuffy, constant motion)."""
         temp_offset = self._get_temperature_offset()
 
@@ -455,7 +455,7 @@ class EnvironmentalSimulator:
         cycle_period = 300
         return (self.reading_number % cycle_period) / cycle_period
 
-    def _add_noise(self, values: Dict[str, float]) -> Dict[str, float]:
+    def _add_noise(self, values: dict[str, float]) -> dict[str, float]:
         """Add realistic sensor noise.
 
         Args:
@@ -490,7 +490,7 @@ class EnvironmentalSimulator:
 
         return noisy_values
 
-    def _inject_anomaly(self, values: Dict[str, float]) -> Dict[str, float]:
+    def _inject_anomaly(self, values: dict[str, float]) -> dict[str, float]:
         """Inject sudden anomaly into sensor readings.
 
         Args:

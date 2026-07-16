@@ -1,4 +1,3 @@
-import os
 import time
 
 import numpy as np
@@ -6,7 +5,6 @@ import pytest
 
 from src.anomaly.detector import AnomalyOrchestrator
 from src.anomaly.enrollment import pre_enroll_japan_scenarios
-from src.anomaly.scenarios import JapanScenario
 from src.database.faiss_store import FAISSStore
 from src.privacy.dp_noise import LaplaceMechanism
 from src.privacy.memory_wiper import SecureWiper

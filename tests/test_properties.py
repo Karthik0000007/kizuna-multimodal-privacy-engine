@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 
 def generate_similar_embeddings(base_vector, num_samples, noise_scale=0.1):
@@ -38,9 +37,9 @@ def test_embedding_consistency():
         sim = np.dot(cluster_a[i], cluster_a[i + 1])
         similarities_a.append(sim)
 
-    assert (
-        np.mean(similarities_a) > 0.8
-    ), f"Mean intra-cluster similarity was {np.mean(similarities_a)}"
+    assert np.mean(similarities_a) > 0.8, (
+        f"Mean intra-cluster similarity was {np.mean(similarities_a)}"
+    )
 
     # Test dissimilar (inter-cluster)
     similarities_ab = []
@@ -48,9 +47,9 @@ def test_embedding_consistency():
         sim = np.dot(cluster_a[i], cluster_b[i])
         similarities_ab.append(sim)
 
-    assert (
-        np.mean(similarities_ab) < 0.5
-    ), f"Mean inter-cluster similarity was {np.mean(similarities_ab)}"
+    assert np.mean(similarities_ab) < 0.5, (
+        f"Mean inter-cluster similarity was {np.mean(similarities_ab)}"
+    )
 
 
 def test_dp_utility():

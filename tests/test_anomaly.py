@@ -1,12 +1,10 @@
 import numpy as np
-import pytest
 
 from src.anomaly.classifier import AnomalyClassifier
 from src.anomaly.cluster_detector import ClusterAnomalyDetector
 from src.anomaly.density_detector import DensityAnomalyDetector
 from src.anomaly.detector import AnomalyOrchestrator
 from src.anomaly.knn_detector import KNNAnomalyDetector
-from src.anomaly.models import AnomalyResult, PrivacyEvent
 from src.database.base import SearchResult, VectorStore
 
 

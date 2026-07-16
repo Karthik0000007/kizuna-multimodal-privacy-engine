@@ -5,7 +5,6 @@ Extracts dense embeddings from audio chunks using a pre-trained audio model.
 
 import time
 from pathlib import Path
-from typing import Optional, Tuple
 
 import librosa
 import numpy as np
@@ -99,7 +98,7 @@ class AudioEncoder:
 
         except Exception as e:
             logger.error("audio_encoder_init_failed", error=str(e))
-            raise RuntimeError(f"Failed to load ONNX model: {e}")
+            raise RuntimeError(f"Failed to load ONNX model: {e}") from e
 
     def encode(self, audio_chunk: NDArray[np.float32]) -> NDArray[np.float32]:
         """Extract embedding from audio chunk.
@@ -143,7 +142,7 @@ class AudioEncoder:
 
         except Exception as e:
             logger.error("audio_encoding_failed", error=str(e))
-            raise RuntimeError(f"Audio encoding failed: {e}")
+            raise RuntimeError(f"Audio encoding failed: {e}") from e
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
 
@@ -198,7 +197,7 @@ class AudioEncoder:
 
         except Exception as e:
             logger.error("audio_batch_encoding_failed", error=str(e))
-            raise RuntimeError(f"Audio batch encoding failed: {e}")
+            raise RuntimeError(f"Audio batch encoding failed: {e}") from e
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
 
@@ -229,7 +228,7 @@ class AudioEncoder:
         dummy_audio = np.random.randn(self.expected_samples).astype(np.float32)
 
         latencies = []
-        for i in range(num_iterations):
+        for _i in range(num_iterations):
             start = time.perf_counter()
             self.encode(dummy_audio)
             latencies.append((time.perf_counter() - start) * 1000)
@@ -362,7 +361,7 @@ def main() -> None:
     # Initialize encoder
     print(f"\nLoading model: {model_path}")
     encoder = AudioEncoder(model_path=model_path, chunk_duration=args.duration)
-    print(f"✓ Model loaded")
+    print("✓ Model loaded")
     print(f"  Embedding dimension: {encoder.get_embedding_dim()}")
     print(f"  Target sample rate: {encoder.target_sample_rate} Hz")
     print(f"  Expected samples: {encoder.expected_samples}")
@@ -370,7 +369,7 @@ def main() -> None:
     # Warm up
     print(f"\nWarming up ({args.warmup} iterations)...")
     avg_warmup_latency = encoder.warm_up(num_iterations=args.warmup)
-    print(f"✓ Warm-up complete")
+    print("✓ Warm-up complete")
     print(f"  Average latency: {avg_warmup_latency:.2f}ms")
 
     # Test with audio file or random data
@@ -383,17 +382,17 @@ def main() -> None:
         print(f"  Sample rate: {sr} Hz")
         print(f"  Duration: {len(audio_chunk) / sr:.2f}s")
     else:
-        print(f"\nGenerating random test audio...")
+        print("\nGenerating random test audio...")
         audio_chunk = np.random.randn(encoder.expected_samples).astype(np.float32)
         audio_chunk = audio_chunk / (np.abs(audio_chunk).max() + 1e-8)  # Normalize to [-1, 1]
 
     # Single inference
-    print(f"\nRunning single inference...")
+    print("\nRunning single inference...")
     start = time.perf_counter()
     embedding = encoder.encode(audio_chunk)
     latency = (time.perf_counter() - start) * 1000
 
-    print(f"✓ Inference complete")
+    print("✓ Inference complete")
     print(f"  Latency: {latency:.2f}ms")
     print(f"  Embedding shape: {embedding.shape}")
     print(f"  Embedding norm: {np.linalg.norm(embedding):.6f}")
@@ -408,13 +407,13 @@ def main() -> None:
         embeddings = encoder.encode_batch(audio_chunks)
         batch_latency = (time.perf_counter() - start) * 1000
 
-        print(f"✓ Batch inference complete")
+        print("✓ Batch inference complete")
         print(f"  Total latency: {batch_latency:.2f}ms")
         print(f"  Per-chunk latency: {batch_latency / args.batch_size:.2f}ms")
         print(f"  Embeddings shape: {embeddings.shape}")
 
     # Show mel-spectrogram info
-    print(f"\nMel-spectrogram configuration:")
+    print("\nMel-spectrogram configuration:")
     print(f"  n_mels: {encoder.n_mels}")
     print(f"  n_fft: {encoder.n_fft}")
     print(f"  hop_length: {encoder.hop_length}")

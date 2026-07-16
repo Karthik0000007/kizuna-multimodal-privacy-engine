@@ -1,10 +1,7 @@
 import time
 
-import numpy as np
-import pytest
-
-from src.dashboard.api import CacheEntry, DashboardAPI
-from src.dashboard.live_state import LiveEvent, LiveStateManager, get_live_state
+from src.dashboard.api import DashboardAPI
+from src.dashboard.live_state import LiveEvent, LiveStateManager
 from src.dashboard.projection import ProjectionService
 from src.database.base import SearchResult, VectorStore
 
@@ -75,7 +72,7 @@ class TestDashboardAPI:
         assert isinstance(status, dict)
         # Should have up to 3 nodes
         assert len(status) <= 3
-        for node_id, info in status.items():
+        for _node_id, info in status.items():
             assert "payload_count" in info
             assert "anomaly_count" in info
 
@@ -126,7 +123,7 @@ class TestLiveStateManager:
 
     def test_buffer_overflow(self):
         mgr = LiveStateManager(max_buffer_size=5)
-        for i in range(10):
+        for _i in range(10):
             mgr.push_event(
                 LiveEvent(timestamp=time.time(), source_node_id="node-1", event_type="normal")
             )

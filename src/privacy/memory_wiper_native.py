@@ -5,8 +5,6 @@ automatically falling back to the Python ctypes implementation if the native
 extension is not installed.
 """
 
-from typing import Optional
-
 import numpy as np
 from numpy.typing import NDArray
 
@@ -282,12 +280,12 @@ def main() -> None:
     print("Kizuna Native Memory Wiper Demo")
     print("=" * 70)
 
-    print(f"\nNative Extension Status:")
+    print("\nNative Extension Status:")
     print(f"  Available: {NativeSecureWiper.is_native_available()}")
     print(f"  Implementation: {NativeSecureWiper.get_implementation_info()}")
 
     # Create wipers for comparison
-    print(f"\nInitializing wipers...")
+    print("\nInitializing wipers...")
 
     if args.force_fallback:
         print("  Forcing Python fallback")
@@ -300,7 +298,7 @@ def main() -> None:
     fallback_wiper = SecureWiper(verify=args.verify)
 
     # Create test array
-    print(f"\nCreating test array...")
+    print("\nCreating test array...")
     print(f"  Size: {args.size:,} elements")
     array1 = np.random.randn(args.size).astype(np.float32)
     array2 = array1.copy()
@@ -310,13 +308,13 @@ def main() -> None:
 
     # Benchmark native/fallback wiper
     if use_native:
-        print(f"\nBenchmarking native wiper...")
+        print("\nBenchmarking native wiper...")
         result1 = native_wiper.wipe(array1)
         print(f"  Duration: {result1.duration_ms:.3f}ms")
         print(f"  Throughput: {size_mb / (result1.duration_ms / 1000):.2f} MB/s")
 
     # Benchmark fallback wiper
-    print(f"\nBenchmarking fallback wiper...")
+    print("\nBenchmarking fallback wiper...")
     result2 = fallback_wiper.wipe(array2)
     print(f"  Duration: {result2.duration_ms:.3f}ms")
     print(f"  Throughput: {size_mb / (result2.duration_ms / 1000):.2f} MB/s")
@@ -324,15 +322,15 @@ def main() -> None:
     # Compare performance
     if use_native:
         speedup = result2.duration_ms / result1.duration_ms
-        print(f"\nPerformance Comparison:")
+        print("\nPerformance Comparison:")
         print(f"  Native: {result1.duration_ms:.3f}ms")
         print(f"  Fallback: {result2.duration_ms:.3f}ms")
         print(f"  Speedup: {speedup:.2f}x")
 
         if speedup >= 2.0:
-            print(f"  ✓ Native achieves 2x+ speedup target")
+            print("  ✓ Native achieves 2x+ speedup target")
         else:
-            print(f"  ⚠ Native speedup below 2x target")
+            print("  ⚠ Native speedup below 2x target")
 
     print(f"\n{'=' * 70}")
     print("✓ Demo complete")

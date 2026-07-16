@@ -7,9 +7,6 @@ using sliding window buffering and jitter tolerance.
 import time
 from collections import deque
 from dataclasses import dataclass
-from typing import Deque, Dict, List, Optional, Tuple
-
-import numpy as np
 
 from ..logger import get_ingestion_logger
 from .audio_simulator import AudioChunk
@@ -24,9 +21,9 @@ class AlignedData:
     """Container for temporally aligned multimodal data."""
 
     timestamp: float  # Common reference timestamp
-    video: Optional[VideoFrame]
-    audio: Optional[AudioChunk]
-    environmental: Optional[SensorReading]
+    video: VideoFrame | None
+    audio: AudioChunk | None
+    environmental: SensorReading | None
     jitter: float  # Maximum time difference between modalities
 
 
@@ -71,9 +68,9 @@ class TemporalAligner:
         self.require_all_modalities = require_all_modalities
 
         # Buffers for each modality (deque for efficient append/popleft)
-        self.video_buffer: Deque[VideoFrame] = deque(maxlen=buffer_size)
-        self.audio_buffer: Deque[AudioChunk] = deque(maxlen=buffer_size)
-        self.env_buffer: Deque[SensorReading] = deque(maxlen=buffer_size)
+        self.video_buffer: deque[VideoFrame] = deque(maxlen=buffer_size)
+        self.audio_buffer: deque[AudioChunk] = deque(maxlen=buffer_size)
+        self.env_buffer: deque[SensorReading] = deque(maxlen=buffer_size)
 
         # Statistics
         self.stats = {
@@ -121,7 +118,7 @@ class TemporalAligner:
         self.env_buffer.append(reading)
         self.stats["env_received"] += 1
 
-    def try_align(self) -> Optional[AlignedData]:
+    def try_align(self) -> AlignedData | None:
         """Attempt to align data from all modalities.
 
         Returns:
@@ -205,7 +202,7 @@ class TemporalAligner:
 
         return None
 
-    def cleanup_stale_data(self, current_time: Optional[float] = None) -> None:
+    def cleanup_stale_data(self, current_time: float | None = None) -> None:
         """Remove stale data that exceeds window size.
 
         Args:
@@ -231,7 +228,7 @@ class TemporalAligner:
             self.env_buffer.popleft()
             self.stats["env_dropped"] += 1
 
-    def get_buffer_status(self) -> Dict[str, int]:
+    def get_buffer_status(self) -> dict[str, int]:
         """Get current buffer sizes.
 
         Returns:
@@ -243,7 +240,7 @@ class TemporalAligner:
             "environmental": len(self.env_buffer),
         }
 
-    def get_stats(self) -> Dict[str, int]:
+    def get_stats(self) -> dict[str, int]:
         """Get alignment statistics.
 
         Returns:
@@ -271,7 +268,7 @@ class TemporalAligner:
 
     # Private helper methods
 
-    def _get_available_modalities(self) -> List[str]:
+    def _get_available_modalities(self) -> list[str]:
         """Get list of modalities with buffered data."""
         modalities = []
         if self.video_buffer:
@@ -282,7 +279,7 @@ class TemporalAligner:
             modalities.append("environmental")
         return modalities
 
-    def _get_reference_timestamp(self) -> Tuple[Optional[float], Optional[str]]:
+    def _get_reference_timestamp(self) -> tuple[float | None, str | None]:
         """Get reference timestamp for alignment.
 
         Returns:
@@ -302,7 +299,7 @@ class TemporalAligner:
 
         return None, None
 
-    def _find_closest_video(self, ref_timestamp: float) -> Tuple[Optional[VideoFrame], float]:
+    def _find_closest_video(self, ref_timestamp: float) -> tuple[VideoFrame | None, float]:
         """Find closest video frame to reference timestamp.
 
         Args:
@@ -318,7 +315,7 @@ class TemporalAligner:
         jitter = abs(closest.timestamp - ref_timestamp)
         return closest, jitter
 
-    def _find_closest_audio(self, ref_timestamp: float) -> Tuple[Optional[AudioChunk], float]:
+    def _find_closest_audio(self, ref_timestamp: float) -> tuple[AudioChunk | None, float]:
         """Find closest audio chunk to reference timestamp.
 
         Args:
@@ -334,7 +331,7 @@ class TemporalAligner:
         jitter = abs(closest.timestamp - ref_timestamp)
         return closest, jitter
 
-    def _find_closest_env(self, ref_timestamp: float) -> Tuple[Optional[SensorReading], float]:
+    def _find_closest_env(self, ref_timestamp: float) -> tuple[SensorReading | None, float]:
         """Find closest environmental reading to reference timestamp.
 
         Args:
@@ -438,13 +435,13 @@ def main() -> None:
 
         time.sleep(0.1)  # Simulate real-time processing
 
-    print(f"\nAlignment Statistics:")
+    print("\nAlignment Statistics:")
     stats = aligner.get_stats()
     for key, value in stats.items():
         print(f"  {key}: {value}")
 
     buffer_status = aligner.get_buffer_status()
-    print(f"\nFinal Buffer Status:")
+    print("\nFinal Buffer Status:")
     for modality, count in buffer_status.items():
         print(f"  {modality}: {count} items")
 

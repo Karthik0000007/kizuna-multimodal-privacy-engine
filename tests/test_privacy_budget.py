@@ -1,6 +1,5 @@
 """Unit tests for privacy budget tracker."""
 
-import json
 import tempfile
 from pathlib import Path
 

@@ -9,10 +9,10 @@ Generates synthetic audio chunks with various scenarios:
 """
 
 import time
+from collections.abc import Generator
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Generator, Optional
 
 import numpy as np
 import soundfile as sf
@@ -101,9 +101,7 @@ class AudioSimulator:
             samples_per_chunk=self.samples_per_chunk,
         )
 
-    def generate(
-        self, duration_seconds: Optional[float] = None
-    ) -> Generator[AudioChunk, None, None]:
+    def generate(self, duration_seconds: float | None = None) -> Generator[AudioChunk, None, None]:
         """Generate audio chunks.
 
         Args:
@@ -519,7 +517,7 @@ def main() -> None:
     all_audio = []
     for chunk_obj in simulator.generate(duration_seconds=args.duration):
         all_audio.append(chunk_obj.audio)
-        print(f"Chunk {chunk_obj.chunk_number}: " f"RMS={chunk_obj.metadata['rms_amplitude']:.4f}")
+        print(f"Chunk {chunk_obj.chunk_number}: RMS={chunk_obj.metadata['rms_amplitude']:.4f}")
 
     # Save to file if output specified
     if args.output:

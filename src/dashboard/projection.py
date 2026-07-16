@@ -1,6 +1,6 @@
 import threading
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 import numpy as np
 from sklearn.manifold import TSNE
@@ -25,11 +25,11 @@ class ProjectionService:
         self.cache_ttl = cache_ttl
         self.perplexity = perplexity
 
-        self._cached_projection: Optional[Dict[str, Any]] = None
+        self._cached_projection: dict[str, Any] | None = None
         self._cache_time: float = 0.0
         self._lock = threading.Lock()
 
-    def compute_projection(self, max_points: int = 1000, force: bool = False) -> Dict[str, Any]:
+    def compute_projection(self, max_points: int = 1000, force: bool = False) -> dict[str, Any]:
         """
         Compute or return cached 2D t-SNE projection.
 

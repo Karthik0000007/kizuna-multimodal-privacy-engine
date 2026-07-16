@@ -1,5 +1,3 @@
-from typing import Any, Dict, List, Tuple
-
 import numpy as np
 
 from src.anomaly.detector import AnomalyOrchestrator
@@ -18,8 +16,8 @@ class CrossDomainEvaluator:
         self.enroller = AnomalyEnroller(vector_store)
 
     def evaluate_zero_shot(
-        self, test_embeddings: List[np.ndarray], test_labels: List[int]
-    ) -> Dict[str, float]:
+        self, test_embeddings: list[np.ndarray], test_labels: list[int]
+    ) -> dict[str, float]:
         """
         Evaluate zero-shot transfer accuracy (no retraining or enrollment).
 
@@ -34,11 +32,11 @@ class CrossDomainEvaluator:
 
     def evaluate_few_shot(
         self,
-        enrollment_embeddings: List[np.ndarray],
+        enrollment_embeddings: list[np.ndarray],
         enrollment_label: str,
-        test_embeddings: List[np.ndarray],
-        test_labels: List[int],
-    ) -> Dict[str, float]:
+        test_embeddings: list[np.ndarray],
+        test_labels: list[int],
+    ) -> dict[str, float]:
         """
         Evaluate few-shot transfer accuracy by enrolling examples from Domain B,
         then testing on Domain B.
@@ -59,14 +57,14 @@ class CrossDomainEvaluator:
         return self._evaluate(test_embeddings, test_labels)
 
     def _evaluate(
-        self, test_embeddings: List[np.ndarray], test_labels: List[int]
-    ) -> Dict[str, float]:
+        self, test_embeddings: list[np.ndarray], test_labels: list[int]
+    ) -> dict[str, float]:
         true_positives = 0
         false_positives = 0
         true_negatives = 0
         false_negatives = 0
 
-        for embedding, label in zip(test_embeddings, test_labels):
+        for embedding, label in zip(test_embeddings, test_labels, strict=False):
             # Process using orchestrator
             event = self.orchestrator.process(embedding, source_node_id="evaluator")
 

@@ -11,7 +11,7 @@ import sys
 import uuid
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import structlog
 from structlog.typing import EventDict, WrappedLogger
@@ -169,8 +169,8 @@ def setup_logging(
 
 def get_logger(
     component: str,
-    log_level: Optional[str] = None,
-    log_dir: Optional[str] = None,
+    log_level: str | None = None,
+    log_dir: str | None = None,
     **kwargs: Any,
 ) -> structlog.BoundLogger:
     """Get a logger for a specific component.
@@ -230,14 +230,14 @@ def get_dashboard_logger() -> structlog.BoundLogger:
 class CorrelationContext:
     """Context manager for setting correlation ID across log messages."""
 
-    def __init__(self, correlation_id: Optional[str] = None):
+    def __init__(self, correlation_id: str | None = None):
         """Initialize correlation context.
 
         Args:
             correlation_id: Correlation ID to use (generates new if None)
         """
         self.correlation_id = correlation_id or str(uuid.uuid4())
-        self._token: Optional[object] = None
+        self._token: object | None = None
 
     def __enter__(self) -> str:
         """Enter correlation context."""

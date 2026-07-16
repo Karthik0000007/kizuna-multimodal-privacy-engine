@@ -311,9 +311,9 @@ class TestLaplaceStatisticalProperties:
 
         # Check element-wise (more lenient for high-dimensional vectors)
         mean_diff = np.mean(np.abs(mean_noisy - original))
-        assert (
-            mean_diff < tolerance * 10
-        ), f"Mean difference {mean_diff} exceeds tolerance {tolerance * 10}"
+        assert mean_diff < tolerance * 10, (
+            f"Mean difference {mean_diff} exceeds tolerance {tolerance * 10}"
+        )
 
     @settings(max_examples=50, deadline=None)
     @given(
@@ -369,9 +369,9 @@ class TestLaplaceStatisticalProperties:
 
         # Variances should decrease monotonically with increasing epsilon
         for i in range(len(variances) - 1):
-            assert (
-                variances[i] > variances[i + 1]
-            ), f"Variance should decrease with increasing epsilon: {variances}"
+            assert variances[i] > variances[i + 1], (
+                f"Variance should decrease with increasing epsilon: {variances}"
+            )
 
     def test_laplace_distribution_shape(self):
         """Property: Noise should follow Laplace distribution (KS test)."""
@@ -396,9 +396,9 @@ class TestLaplaceStatisticalProperties:
         )
 
         # p-value > 0.05 means we cannot reject H0 (good!)
-        assert (
-            p_value > 0.01
-        ), f"KS test failed: samples do not follow Laplace distribution (p={p_value})"
+        assert p_value > 0.01, (
+            f"KS test failed: samples do not follow Laplace distribution (p={p_value})"
+        )
 
 
 class TestGaussianStatisticalProperties:
@@ -483,9 +483,9 @@ class TestGaussianStatisticalProperties:
             noise_samples, lambda x: stats.norm.cdf(x, loc=0, scale=expected_sigma)
         )
 
-        assert (
-            p_value > 0.01
-        ), f"KS test failed: samples do not follow Gaussian distribution (p={p_value})"
+        assert p_value > 0.01, (
+            f"KS test failed: samples do not follow Gaussian distribution (p={p_value})"
+        )
 
 
 class TestSensitivityNoiseRelationship:
@@ -593,7 +593,7 @@ class TestIntegration:
 
         # Verify utility (cosine similarity should be positive on average)
         cosine_sims = []
-        for orig, noisy in zip(embeddings, noisy_embeddings):
+        for orig, noisy in zip(embeddings, noisy_embeddings, strict=False):
             sim = np.dot(orig, noisy) / (np.linalg.norm(orig) * np.linalg.norm(noisy))
             cosine_sims.append(sim)
 

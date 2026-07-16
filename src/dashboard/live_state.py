@@ -1,7 +1,8 @@
 import threading
 import time
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional
+from collections.abc import Callable
+from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -12,7 +13,7 @@ class LiveEvent:
     source_node_id: str
     event_type: str
     confidence: float = 0.0
-    anomaly_type: Optional[str] = None
+    anomaly_type: str | None = None
 
 
 class LiveStateManager:
@@ -24,10 +25,10 @@ class LiveStateManager:
 
     def __init__(self, max_buffer_size: int = 200):
         self.max_buffer_size = max_buffer_size
-        self._events: List[LiveEvent] = []
-        self._alerts: List[LiveEvent] = []
+        self._events: list[LiveEvent] = []
+        self._alerts: list[LiveEvent] = []
         self._lock = threading.Lock()
-        self._subscribers: List[Callable[[LiveEvent], None]] = []
+        self._subscribers: list[Callable[[LiveEvent], None]] = []
         self._last_update: float = 0.0
 
     def push_event(self, event: LiveEvent):
@@ -51,7 +52,7 @@ class LiveStateManager:
             except Exception:
                 pass
 
-    def get_recent_events(self, limit: int = 50) -> List[Dict[str, Any]]:
+    def get_recent_events(self, limit: int = 50) -> list[dict[str, Any]]:
         """Return the most recent events as dicts for Streamlit rendering."""
         with self._lock:
             events = self._events[-limit:]
@@ -67,7 +68,7 @@ class LiveStateManager:
             for e in reversed(events)
         ]
 
-    def get_active_alerts(self, max_age_sec: float = 60.0) -> List[Dict[str, Any]]:
+    def get_active_alerts(self, max_age_sec: float = 60.0) -> list[dict[str, Any]]:
         """Return active alerts (anomalies) within the last max_age_sec seconds."""
         cutoff = time.time() - max_age_sec
         with self._lock:
@@ -84,7 +85,7 @@ class LiveStateManager:
             for a in reversed(active)
         ]
 
-    def get_latency_sparkline(self, node_id: str, window: int = 100) -> List[float]:
+    def get_latency_sparkline(self, node_id: str, window: int = 100) -> list[float]:
         """
         Generate a latency sparkline for a given node.
         In production this would track actual processing times;
@@ -117,7 +118,7 @@ class LiveStateManager:
 
 
 # Singleton instance for use across Streamlit pages
-_global_state: Optional[LiveStateManager] = None
+_global_state: LiveStateManager | None = None
 
 
 def get_live_state() -> LiveStateManager:

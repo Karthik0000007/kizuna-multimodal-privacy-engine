@@ -6,7 +6,6 @@ format for efficient edge inference.
 
 import argparse
 from pathlib import Path
-from typing import Tuple
 
 import numpy as np
 import onnx
@@ -123,7 +122,7 @@ def export_audio_model(
         sample_rate: Audio sample rate
         hop_length: STFT hop length
     """
-    print(f"Creating audio encoder model...")
+    print("Creating audio encoder model...")
     print(f"  n_mels: {n_mels}")
     print(f"  embedding_dim: {embedding_dim}")
     print(f"  sample_duration: {sample_duration}s")
@@ -150,7 +149,7 @@ def export_audio_model(
     # Test forward pass
     with torch.no_grad():
         output = model(dummy_input)
-    print(f"\n✓ Model forward pass successful")
+    print("\n✓ Model forward pass successful")
     print(f"  Input shape: {dummy_input.shape}")
     print(f"  Output shape: {output.shape}")
     print(f"  Output norm: {torch.norm(output, p=2, dim=1).item():.6f}")
@@ -174,22 +173,22 @@ def export_audio_model(
         export_params=True,
     )
 
-    print(f"✓ ONNX export complete")
+    print("✓ ONNX export complete")
 
     # Validate ONNX model
-    print(f"\nValidating ONNX model...")
+    print("\nValidating ONNX model...")
     onnx_model = onnx.load(str(output_path))
     onnx.checker.check_model(onnx_model)
-    print(f"✓ ONNX model is valid")
+    print("✓ ONNX model is valid")
 
     # Test ONNX Runtime inference
-    print(f"\nTesting ONNX Runtime inference...")
+    print("\nTesting ONNX Runtime inference...")
     sess = ort.InferenceSession(str(output_path), providers=["CPUExecutionProvider"])
 
     dummy_input_np = dummy_input.numpy()
     onnx_output = sess.run(None, {"mel_spectrogram": dummy_input_np})[0]
 
-    print(f"✓ ONNX Runtime inference successful")
+    print("✓ ONNX Runtime inference successful")
     print(f"  Output shape: {onnx_output.shape}")
     print(f"  Output norm: {np.linalg.norm(onnx_output):.6f}")
 
@@ -201,19 +200,19 @@ def export_audio_model(
         np.linalg.norm(pytorch_output) * np.linalg.norm(onnx_output)
     )
 
-    print(f"\nPyTorch vs ONNX comparison:")
+    print("\nPyTorch vs ONNX comparison:")
     print(f"  Max absolute error: {max_diff:.6e}")
     print(f"  Mean absolute error: {mean_diff:.6e}")
     print(f"  Cosine similarity: {cosine_sim:.6f}")
 
     if max_diff < 1e-4 and cosine_sim > 0.9999:
-        print(f"\n✓ Export successful - outputs match within tolerance")
+        print("\n✓ Export successful - outputs match within tolerance")
     else:
-        print(f"\n⚠ Warning: Outputs differ more than expected")
+        print("\n⚠ Warning: Outputs differ more than expected")
 
     # Print model info
     model_size_mb = output_path.stat().st_size / (1024 * 1024)
-    print(f"\nModel information:")
+    print("\nModel information:")
     print(f"  File size: {model_size_mb:.2f} MB")
     print(f"  Saved to: {output_path}")
 
@@ -274,16 +273,16 @@ def main():
         hop_length=args.hop_length,
     )
 
-    print(f"\n" + "=" * 70)
-    print(f"Export complete!")
-    print(f"=" * 70)
-    print(f"\nNext steps:")
-    print(f"1. Optionally run ONNX Simplifier:")
-    print(f"   pip install onnx-simplifier")
+    print("\n" + "=" * 70)
+    print("Export complete!")
+    print("=" * 70)
+    print("\nNext steps:")
+    print("1. Optionally run ONNX Simplifier:")
+    print("   pip install onnx-simplifier")
     print(f"   onnxsim {output_path} {output_path}")
-    print(f"\n2. Quantize to INT8:")
-    print(f"   python scripts/quantize_models.py --model audio")
-    print(f"\n3. Test the encoder:")
+    print("\n2. Quantize to INT8:")
+    print("   python scripts/quantize_models.py --model audio")
+    print("\n3. Test the encoder:")
     print(f"   python -m src.engine.audio_encoder --model {output_path}")
 
 

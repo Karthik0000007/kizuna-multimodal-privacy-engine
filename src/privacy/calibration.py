@@ -4,7 +4,7 @@ Empirically estimates L2 sensitivity by measuring maximum change in
 embedding output when input changes by one record.
 """
 
-from typing import Callable, List, Tuple
+from collections.abc import Callable
 
 import numpy as np
 from numpy.typing import NDArray
@@ -30,7 +30,7 @@ class SensitivityCalibrator:
 
     def __init__(self) -> None:
         """Initialize sensitivity calibrator."""
-        self.calibration_results: List[float] = []
+        self.calibration_results: list[float] = []
 
         logger.info("sensitivity_calibrator_initialized")
 
@@ -40,7 +40,7 @@ class SensitivityCalibrator:
         input_generator: Callable[[], NDArray],
         num_samples: int = 10000,
         confidence_level: float = 0.95,
-    ) -> Tuple[float, dict]:
+    ) -> tuple[float, dict]:
         """Calibrate sensitivity for an embedding function.
 
         Args:
@@ -124,12 +124,12 @@ class SensitivityCalibrator:
 
     def calibrate_with_adjacent_datasets(
         self,
-        embedding_func: Callable[[List], NDArray],
-        dataset_generator: Callable[[int], List],
+        embedding_func: Callable[[list], NDArray],
+        dataset_generator: Callable[[int], list],
         dataset_size: int = 100,
         num_samples: int = 1000,
         confidence_level: float = 0.95,
-    ) -> Tuple[float, dict]:
+    ) -> tuple[float, dict]:
         """Calibrate sensitivity using adjacent dataset definition.
 
         More rigorous approach: generate datasets that differ by exactly
@@ -214,7 +214,7 @@ class SensitivityCalibrator:
 
         return sensitivity_estimate, statistics
 
-    def get_calibration_history(self) -> List[float]:
+    def get_calibration_history(self) -> list[float]:
         """Get history of all calibration runs.
 
         Returns:
@@ -270,11 +270,11 @@ def main() -> None:
         return vec / np.linalg.norm(vec)
 
     # Initialize calibrator
-    print(f"\nInitializing calibrator...")
+    print("\nInitializing calibrator...")
     calibrator = SensitivityCalibrator()
 
     # Run calibration
-    print(f"\nCalibrating sensitivity...")
+    print("\nCalibrating sensitivity...")
     print(f"  Embedding dimension: {embedding_dim}")
     print(f"  Number of samples: {args.num_samples}")
     print(f"  Confidence level: {args.confidence_level}")
@@ -288,13 +288,13 @@ def main() -> None:
 
     # Print results
     print(f"\n{'=' * 70}")
-    print(f"Calibration Results")
+    print("Calibration Results")
     print(f"{'=' * 70}")
 
     print(f"\nSensitivity Estimate: {sensitivity:.6f}")
-    print(f"  (Use this value for DP noise scale)")
+    print("  (Use this value for DP noise scale)")
 
-    print(f"\nStatistics:")
+    print("\nStatistics:")
     print(f"  Mean: {stats['mean']:.6f}")
     print(f"  Std: {stats['std']:.6f}")
     print(f"  Min: {stats['min']:.6f}")
@@ -311,15 +311,15 @@ def main() -> None:
 
     # Recommendation
     print(f"\n{'=' * 70}")
-    print(f"Recommendation")
+    print("Recommendation")
     print(f"{'=' * 70}")
-    print(f"\nFor conservative privacy guarantee, use:")
+    print("\nFor conservative privacy guarantee, use:")
     print(f"  sensitivity = {sensitivity:.6f}")
     print(f"\nThis ensures that {stats['confidence_level']:.0%} of observed")
-    print(f"sensitivities are below this threshold.")
+    print("sensitivities are below this threshold.")
 
     # Example DP noise scales
-    print(f"\nExample DP noise scales:")
+    print("\nExample DP noise scales:")
     for epsilon in [0.1, 0.5, 1.0, 2.0, 5.0]:
         laplace_scale = sensitivity / epsilon
         gaussian_sigma = sensitivity * np.sqrt(2 * np.log(1.25 / 1e-5)) / epsilon

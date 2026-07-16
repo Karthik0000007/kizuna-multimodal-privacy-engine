@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import numpy as np
 
@@ -9,14 +9,14 @@ import numpy as np
 class SearchResult:
     id: str
     score: float
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
 
 
 class VectorStore(ABC):
     """Abstract base class for vector database storage."""
 
     @abstractmethod
-    def insert(self, vector: np.ndarray, metadata: Dict[str, Any]) -> str:
+    def insert(self, vector: np.ndarray, metadata: dict[str, Any]) -> str:
         """
         Insert a vector with metadata into the database.
 
@@ -31,8 +31,8 @@ class VectorStore(ABC):
 
     @abstractmethod
     def search(
-        self, query: np.ndarray, top_k: int = 10, filters: Optional[Dict[str, Any]] = None
-    ) -> List[SearchResult]:
+        self, query: np.ndarray, top_k: int = 10, filters: dict[str, Any] | None = None
+    ) -> list[SearchResult]:
         """
         Search for nearest neighbors of a query vector.
 
@@ -57,6 +57,6 @@ class VectorStore(ABC):
         pass
 
     @abstractmethod
-    def get_collection_info(self) -> Dict[str, Any]:
+    def get_collection_info(self) -> dict[str, Any]:
         """Get information about the vector collection."""
         pass

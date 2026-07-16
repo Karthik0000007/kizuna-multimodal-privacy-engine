@@ -1,5 +1,3 @@
-from typing import List, Tuple
-
 import numpy as np
 
 from src.database.base import VectorStore
@@ -26,7 +24,7 @@ class AnomalyClassifier:
             "environmental_anomaly",
         ]
 
-    def classify(self, embedding: np.ndarray) -> List[Tuple[str, float]]:
+    def classify(self, embedding: np.ndarray) -> list[tuple[str, float]]:
         """
         Returns a list of tuples (anomaly_type, confidence_score) sorted by confidence.
         """

@@ -9,7 +9,6 @@ import threading
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
 
 from ..logger import get_logger
 
@@ -66,7 +65,7 @@ class PrivacyBudgetTracker:
         total_budget: float,
         alert_threshold: float = 0.8,
         composition: str = "sequential",
-        persistence_path: Optional[str | Path] = None,
+        persistence_path: str | Path | None = None,
     ) -> None:
         """Initialize privacy budget tracker.
 
@@ -92,7 +91,7 @@ class PrivacyBudgetTracker:
         self.persistence_path = Path(persistence_path) if persistence_path else None
 
         # Query history
-        self.queries: List[PrivacyQuery] = []
+        self.queries: list[PrivacyQuery] = []
 
         # Current cumulative spend
         self.epsilon_spent = 0.0
@@ -123,7 +122,7 @@ class PrivacyBudgetTracker:
         delta: float,
         mechanism: str,
         query_type: str,
-        metadata: Optional[dict] = None,
+        metadata: dict | None = None,
     ) -> bool:
         """Record a privacy query and update budget.
 
@@ -272,7 +271,7 @@ class PrivacyBudgetTracker:
                 "composition": self.composition,
             }
 
-    def get_query_history(self) -> List[PrivacyQuery]:
+    def get_query_history(self) -> list[PrivacyQuery]:
         """Get query history.
 
         Returns:
@@ -330,7 +329,7 @@ class PrivacyBudgetTracker:
             return
 
         try:
-            with open(self.persistence_path, "r") as f:
+            with open(self.persistence_path) as f:
                 state = json.load(f)
 
             self.epsilon_spent = state["epsilon_spent"]
@@ -386,7 +385,7 @@ def main() -> None:
     temp_file = Path(tempfile.mktemp(suffix=".json"))
 
     # Initialize tracker
-    print(f"\nInitializing tracker...")
+    print("\nInitializing tracker...")
     print(f"  Total budget: ε = {args.total_budget}")
     print(f"  Composition: {args.composition}")
     print(f"  Persistence: {temp_file}")
@@ -398,7 +397,7 @@ def main() -> None:
         persistence_path=temp_file,
     )
 
-    print(f"\n✓ Tracker initialized")
+    print("\n✓ Tracker initialized")
 
     # Simulate queries
     print(f"\nSimulating {args.num_queries} queries...")
@@ -431,12 +430,12 @@ def main() -> None:
             print(f"    Remaining: {status['remaining_budget']:.4f}")
 
             if not accepted:
-                print(f"    ⚠ Query rejected (budget exhausted)")
+                print("    ⚠ Query rejected (budget exhausted)")
                 break
 
     # Final status
     print(f"\n{'=' * 70}")
-    print(f"Final Status")
+    print("Final Status")
     print(f"{'=' * 70}")
 
     status = tracker.get_status()
@@ -450,7 +449,7 @@ def main() -> None:
     print(f"  Budget exhausted: {status['budget_exhausted']}")
 
     # Test persistence
-    print(f"\nTesting persistence...")
+    print("\nTesting persistence...")
     print(f"  Saving state to: {temp_file}")
 
     # Create new tracker from same file
@@ -464,11 +463,11 @@ def main() -> None:
     status2 = tracker2.get_status()
 
     if status2["epsilon_spent"] == status["epsilon_spent"]:
-        print(f"  ✓ State loaded successfully")
+        print("  ✓ State loaded successfully")
         print(f"    Recovered ε: {status2['epsilon_spent']:.4f}")
         print(f"    Recovered queries: {status2['num_queries']}")
     else:
-        print(f"  ✗ State mismatch")
+        print("  ✗ State mismatch")
 
     # Cleanup
     temp_file.unlink()

@@ -6,7 +6,7 @@ with support for YAML files, environment variables, and runtime overrides.
 
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
@@ -27,13 +27,13 @@ class VideoConfig(BaseModel):
 
     enabled: bool = True
     fps: int = Field(default=15, ge=1, le=60)
-    resolution: List[int] = Field(default=[320, 320])
+    resolution: list[int] = Field(default=[320, 320])
     source_type: str = Field(default="simulator", pattern="^(simulator|file|camera)$")
-    source_path: Optional[str] = None
+    source_path: str | None = None
 
     @field_validator("resolution")
     @classmethod
-    def validate_resolution(cls, v: List[int]) -> List[int]:
+    def validate_resolution(cls, v: list[int]) -> list[int]:
         """Validate resolution is [width, height] with positive values."""
         if len(v) != 2:
             raise ValueError("Resolution must be [width, height]")
@@ -49,14 +49,14 @@ class AudioConfig(BaseModel):
     sample_rate: int = Field(default=16000, ge=8000, le=48000)
     chunk_duration: float = Field(default=1.0, gt=0.0, le=10.0)
     source_type: str = Field(default="simulator", pattern="^(simulator|file|microphone)$")
-    source_path: Optional[str] = None
+    source_path: str | None = None
 
 
 class EnvironmentalConfig(BaseModel):
     """Environmental sensor configuration."""
 
     enabled: bool = True
-    sensors: List[str] = Field(
+    sensors: list[str] = Field(
         default=["temperature", "humidity", "motion", "light", "air_quality"]
     )
     polling_rate: float = Field(default=1.0, gt=0.0)
@@ -83,7 +83,7 @@ class IngestionConfig(BaseModel):
     """Data ingestion configuration."""
 
     enabled: bool = True
-    modalities: List[str] = Field(default=["video", "audio", "environmental"])
+    modalities: list[str] = Field(default=["video", "audio", "environmental"])
     video: VideoConfig = Field(default_factory=VideoConfig)
     audio: AudioConfig = Field(default_factory=AudioConfig)
     environmental: EnvironmentalConfig = Field(default_factory=EnvironmentalConfig)
@@ -95,7 +95,7 @@ class VisionModelConfig(BaseModel):
     """Vision model configuration."""
 
     model_path: str = "models/vision/model_int8.onnx"
-    preprocessing: Dict[str, Any] = Field(
+    preprocessing: dict[str, Any] = Field(
         default_factory=lambda: {
             "resize": [224, 224],
             "normalize_mean": [0.485, 0.456, 0.406],
@@ -109,7 +109,7 @@ class AudioModelConfig(BaseModel):
     """Audio model configuration."""
 
     model_path: str = "models/audio/model_int8.onnx"
-    preprocessing: Dict[str, Any] = Field(
+    preprocessing: dict[str, Any] = Field(
         default_factory=lambda: {
             "target_sample_rate": 16000,
             "n_mels": 128,
@@ -123,7 +123,7 @@ class SensorModelConfig(BaseModel):
     """Sensor model configuration."""
 
     model_path: str = "models/sensor/model_int8.onnx"
-    normalization_ranges: Dict[str, List[float]] = Field(
+    normalization_ranges: dict[str, list[float]] = Field(
         default_factory=lambda: {
             "temperature": [15.0, 40.0],
             "humidity": [20.0, 90.0],
@@ -223,16 +223,16 @@ class QdrantConfig(BaseModel):
     collection_name: str = "kizuna_embeddings"
     vector_dimension: int = Field(default=512, ge=128)
     distance_metric: str = Field(default="cosine", pattern="^(cosine|euclidean|dot)$")
-    hnsw_config: Dict[str, int] = Field(
+    hnsw_config: dict[str, int] = Field(
         default_factory=lambda: {"m": 16, "ef_construct": 100, "ef_search": 50}
     )
-    connection: Dict[str, Any] = Field(
+    connection: dict[str, Any] = Field(
         default_factory=lambda: {"timeout": 30, "retry_attempts": 3, "retry_backoff": 2.0}
     )
-    persistence: Dict[str, Any] = Field(
+    persistence: dict[str, Any] = Field(
         default_factory=lambda: {"enabled": True, "storage_path": "qdrant_storage"}
     )
-    retention: Dict[str, Any] = Field(default_factory=lambda: {"enabled": True, "ttl_days": 30})
+    retention: dict[str, Any] = Field(default_factory=lambda: {"enabled": True, "ttl_days": 30})
 
 
 class FAISSConfig(BaseModel):
@@ -264,11 +264,11 @@ class AnomalyConfig(BaseModel):
     """Anomaly detection configuration."""
 
     enabled: bool = True
-    detectors: List[str] = Field(default=["knn", "density", "cluster"])
-    knn: Dict[str, Any] = Field(
+    detectors: list[str] = Field(default=["knn", "density", "cluster"])
+    knn: dict[str, Any] = Field(
         default_factory=lambda: {"enabled": True, "k": 10, "threshold": 0.7, "weight": 1.0}
     )
-    density: Dict[str, Any] = Field(
+    density: dict[str, Any] = Field(
         default_factory=lambda: {
             "enabled": True,
             "algorithm": "lof",
@@ -277,7 +277,7 @@ class AnomalyConfig(BaseModel):
             "weight": 1.0,
         }
     )
-    cluster: Dict[str, Any] = Field(
+    cluster: dict[str, Any] = Field(
         default_factory=lambda: {
             "enabled": True,
             "baseline_clusters": ["normal_walk", "sitting_still", "crowd_flow"],
@@ -285,7 +285,7 @@ class AnomalyConfig(BaseModel):
             "weight": 1.0,
         }
     )
-    ensemble: Dict[str, Any] = Field(
+    ensemble: dict[str, Any] = Field(
         default_factory=lambda: {
             "enabled": True,
             "voting_strategy": "majority",
@@ -293,7 +293,7 @@ class AnomalyConfig(BaseModel):
             "confidence_aggregation": "weighted_average",
         }
     )
-    classification: Dict[str, Any] = Field(
+    classification: dict[str, Any] = Field(
         default_factory=lambda: {
             "enabled": True,
             "event_types": [
@@ -317,7 +317,7 @@ class DashboardConfig(BaseModel):
     title: str = "Kizuna Privacy Engine Dashboard"
     auto_refresh_interval: float = Field(default=1.0, gt=0.0)
     max_events_display: int = Field(default=50, ge=1)
-    pages: List[str] = Field(
+    pages: list[str] = Field(
         default=[
             "live_monitor",
             "anomaly_history",
@@ -326,7 +326,7 @@ class DashboardConfig(BaseModel):
             "settings",
         ]
     )
-    vector_explorer: Dict[str, Any] = Field(
+    vector_explorer: dict[str, Any] = Field(
         default_factory=lambda: {
             "projection_method": "umap",
             "projection_dim": 2,
@@ -341,10 +341,10 @@ class EdgeSimulationConfig(BaseModel):
 
     enabled: bool = False
     node_id: str = "central-node"
-    resource_constraints: Dict[str, float] = Field(
+    resource_constraints: dict[str, float] = Field(
         default_factory=lambda: {"cpu_cores": 4, "memory_gb": 4.0}
     )
-    transmission: Dict[str, Any] = Field(
+    transmission: dict[str, Any] = Field(
         default_factory=lambda: {
             "protocol": "grpc",
             "target_host": "localhost",
@@ -360,10 +360,10 @@ class TelemetryConfig(BaseModel):
     """Telemetry configuration."""
 
     enabled: bool = True
-    metrics: List[str] = Field(
+    metrics: list[str] = Field(
         default=["latency", "throughput", "memory_usage", "cpu_usage", "anomaly_count"]
     )
-    export: Dict[str, Any] = Field(
+    export: dict[str, Any] = Field(
         default_factory=lambda: {"enabled": False, "backend": "prometheus", "port": 9090}
     )
 
@@ -395,16 +395,16 @@ class ConfigManager:
 
     ENV_PREFIX = "KIZUNA_"
 
-    def __init__(self, config_path: Optional[Union[str, Path]] = None) -> None:
+    def __init__(self, config_path: str | Path | None = None) -> None:
         """Initialize configuration manager.
 
         Args:
             config_path: Path to YAML configuration file. If None, uses default.yaml
         """
         self.config_path = Path(config_path) if config_path else None
-        self._config: Optional[KizunaConfig] = None
+        self._config: KizunaConfig | None = None
 
-    def load(self, config_path: Optional[Union[str, Path]] = None) -> KizunaConfig:
+    def load(self, config_path: str | Path | None = None) -> KizunaConfig:
         """Load and validate configuration.
 
         Args:
@@ -438,7 +438,7 @@ class ConfigManager:
 
         return self._config
 
-    def validate(self, config_dict: Dict[str, Any]) -> KizunaConfig:
+    def validate(self, config_dict: dict[str, Any]) -> KizunaConfig:
         """Validate configuration dictionary.
 
         Args:
@@ -452,7 +452,7 @@ class ConfigManager:
         """
         return KizunaConfig(**config_dict)
 
-    def merge(self, base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]:
+    def merge(self, base_config: dict[str, Any], override_config: dict[str, Any]) -> dict[str, Any]:
         """Merge two configuration dictionaries (deep merge).
 
         Args:
@@ -486,7 +486,7 @@ class ConfigManager:
         return self._config
 
     @staticmethod
-    def _load_yaml(path: Path) -> Dict[str, Any]:
+    def _load_yaml(path: Path) -> dict[str, Any]:
         """Load YAML configuration file.
 
         Args:
@@ -499,10 +499,10 @@ class ConfigManager:
             FileNotFoundError: If file doesn't exist
             yaml.YAMLError: If YAML parsing fails
         """
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return yaml.safe_load(f) or {}
 
-    def _apply_env_overrides(self, config_dict: Dict[str, Any]) -> Dict[str, Any]:
+    def _apply_env_overrides(self, config_dict: dict[str, Any]) -> dict[str, Any]:
         """Apply environment variable overrides to configuration.
 
         Environment variables should use format: KIZUNA_SECTION_KEY=value
@@ -531,7 +531,7 @@ class ConfigManager:
         return config_dict
 
     @staticmethod
-    def _parse_env_value(value: str) -> Union[str, int, float, bool]:
+    def _parse_env_value(value: str) -> str | int | float | bool:
         """Parse environment variable value to appropriate type.
 
         Args:

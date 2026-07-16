@@ -1,7 +1,4 @@
-from typing import List
-
 import numpy as np
-from sklearn.neighbors import LocalOutlierFactor
 
 from src.anomaly.models import AnomalyResult
 from src.database.base import VectorStore
@@ -58,7 +55,7 @@ class DensityAnomalyDetector:
         # Local density of neighbors can be approximated.
         # If query point is much farther from its nearest neighbor than the typical distance among neighbors.
         # Simplified LOF: distance to k-th nearest neighbor.
-        kth_distance = distances[-1]
+        distances[-1]
 
         # For a more robust proxy: average distance to k nearest
         avg_dist = np.mean(distances)

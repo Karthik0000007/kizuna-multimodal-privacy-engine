@@ -1,5 +1,3 @@
-from typing import List, Optional
-
 from pydantic import BaseModel, Field
 
 
@@ -8,7 +6,7 @@ class AnomalyResult(BaseModel):
 
     is_anomaly: bool = Field(..., description="True if anomaly detected")
     score: float = Field(..., description="Anomaly score (higher means more anomalous)")
-    nearest_neighbors: List[str] = Field(
+    nearest_neighbors: list[str] = Field(
         default_factory=list, description="IDs of nearest neighbors if applicable"
     )
     detector_name: str = Field(..., description="Name of the detector that produced this result")
@@ -21,12 +19,10 @@ class PrivacyEvent(BaseModel):
     source_node_id: str = Field(..., description="Node where the event was detected")
     is_anomaly: bool = Field(..., description="True if an anomaly was confirmed")
     confidence: float = Field(..., description="Confidence score from the ensemble (0-1)")
-    anomaly_type: Optional[str] = Field(
+    anomaly_type: str | None = Field(
         default=None, description="Classified type of anomaly if detected"
     )
-    top_k_types: Optional[List[str]] = Field(
-        default=None, description="Top K predicted anomaly types"
-    )
-    detector_results: List[AnomalyResult] = Field(
+    top_k_types: list[str] | None = Field(default=None, description="Top K predicted anomaly types")
+    detector_results: list[AnomalyResult] = Field(
         default_factory=list, description="Individual results from ensemble"
     )

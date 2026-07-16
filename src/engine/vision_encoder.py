@@ -5,7 +5,6 @@ Extracts dense embeddings from video frames using a pre-trained vision model.
 
 import time
 from pathlib import Path
-from typing import Optional, Tuple
 
 import cv2
 import numpy as np
@@ -30,9 +29,9 @@ class VisionEncoder:
         execution_provider: str = "CPUExecutionProvider",
         intra_op_num_threads: int = 2,
         inter_op_num_threads: int = 1,
-        input_size: Tuple[int, int] = (224, 224),
-        normalize_mean: Tuple[float, float, float] = (0.485, 0.456, 0.406),
-        normalize_std: Tuple[float, float, float] = (0.229, 0.224, 0.225),
+        input_size: tuple[int, int] = (224, 224),
+        normalize_mean: tuple[float, float, float] = (0.485, 0.456, 0.406),
+        normalize_std: tuple[float, float, float] = (0.229, 0.224, 0.225),
         channel_order: str = "CHW",
     ) -> None:
         """Initialize vision encoder.
@@ -94,7 +93,7 @@ class VisionEncoder:
 
         except Exception as e:
             logger.error("vision_encoder_init_failed", error=str(e))
-            raise RuntimeError(f"Failed to load ONNX model: {e}")
+            raise RuntimeError(f"Failed to load ONNX model: {e}") from e
 
     def encode(self, frame: NDArray[np.uint8]) -> NDArray[np.float32]:
         """Extract embedding from video frame.
@@ -137,7 +136,7 @@ class VisionEncoder:
 
         except Exception as e:
             logger.error("vision_encoding_failed", error=str(e))
-            raise RuntimeError(f"Vision encoding failed: {e}")
+            raise RuntimeError(f"Vision encoding failed: {e}") from e
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
 
@@ -191,7 +190,7 @@ class VisionEncoder:
 
         except Exception as e:
             logger.error("vision_batch_encoding_failed", error=str(e))
-            raise RuntimeError(f"Vision batch encoding failed: {e}")
+            raise RuntimeError(f"Vision batch encoding failed: {e}") from e
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000
 
@@ -222,7 +221,7 @@ class VisionEncoder:
         dummy_frame = np.random.randint(0, 256, (224, 224, 3), dtype=np.uint8)
 
         latencies = []
-        for i in range(num_iterations):
+        for _i in range(num_iterations):
             start = time.perf_counter()
             self.encode(dummy_frame)
             latencies.append((time.perf_counter() - start) * 1000)
@@ -336,13 +335,13 @@ def main() -> None:
     # Initialize encoder
     print(f"\nLoading model: {model_path}")
     encoder = VisionEncoder(model_path=model_path)
-    print(f"✓ Model loaded")
+    print("✓ Model loaded")
     print(f"  Embedding dimension: {encoder.get_embedding_dim()}")
 
     # Warm up
     print(f"\nWarming up ({args.warmup} iterations)...")
     avg_warmup_latency = encoder.warm_up(num_iterations=args.warmup)
-    print(f"✓ Warm-up complete")
+    print("✓ Warm-up complete")
     print(f"  Average latency: {avg_warmup_latency:.2f}ms")
 
     # Test with image or random data
@@ -352,16 +351,16 @@ def main() -> None:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         print(f"  Image shape: {frame.shape}")
     else:
-        print(f"\nGenerating random test image...")
+        print("\nGenerating random test image...")
         frame = np.random.randint(0, 256, (480, 640, 3), dtype=np.uint8)
 
     # Single inference
-    print(f"\nRunning single inference...")
+    print("\nRunning single inference...")
     start = time.perf_counter()
     embedding = encoder.encode(frame)
     latency = (time.perf_counter() - start) * 1000
 
-    print(f"✓ Inference complete")
+    print("✓ Inference complete")
     print(f"  Latency: {latency:.2f}ms")
     print(f"  Embedding shape: {embedding.shape}")
     print(f"  Embedding norm: {np.linalg.norm(embedding):.6f}")
@@ -376,7 +375,7 @@ def main() -> None:
         embeddings = encoder.encode_batch(frames)
         batch_latency = (time.perf_counter() - start) * 1000
 
-        print(f"✓ Batch inference complete")
+        print("✓ Batch inference complete")
         print(f"  Total latency: {batch_latency:.2f}ms")
         print(f"  Per-frame latency: {batch_latency / args.batch_size:.2f}ms")
         print(f"  Embeddings shape: {embeddings.shape}")

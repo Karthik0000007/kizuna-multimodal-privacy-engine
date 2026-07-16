@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class JapanScenario(Enum):
@@ -32,7 +32,7 @@ def get_japanese_alert(event_type: str) -> str:
         return f"「異常検出: {event_type}」"
 
 
-def build_alert_payload(event_type: str, confidence: float, source_node: str) -> Dict[str, Any]:
+def build_alert_payload(event_type: str, confidence: float, source_node: str) -> dict[str, Any]:
     """
     Constructs a localized alert payload suitable for dashboard display or push notifications.
     """

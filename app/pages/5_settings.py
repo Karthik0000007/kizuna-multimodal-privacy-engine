@@ -1,6 +1,5 @@
 import json
 import os
-import time
 from datetime import datetime
 
 import streamlit as st
@@ -19,7 +18,7 @@ config_path = os.path.normpath(config_path)
 
 config_data = {}
 if os.path.exists(config_path):
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         config_data = yaml.safe_load(f) or {}
 
 if config_data:

@@ -1,5 +1,4 @@
 import time
-from typing import List
 
 import numpy as np
 
@@ -15,7 +14,7 @@ class AnomalyEnroller:
     def __init__(self, vector_store: VectorStore):
         self.vector_store = vector_store
 
-    def enroll(self, examples: List[np.ndarray], label: str) -> str:
+    def enroll(self, examples: list[np.ndarray], label: str) -> str:
         """
         Accepts N example embeddings for a new anomaly type.
         Computes prototype (mean embedding) and decision boundary (mean distance + 2σ of examples).

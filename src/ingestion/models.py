@@ -1,7 +1,6 @@
 """Data models for ingestion pipeline."""
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 import numpy as np
 from numpy.typing import NDArray
@@ -20,20 +19,20 @@ class SensorPayload:
     camera_id: str
 
     # Video modality (optional)
-    video_frame: Optional[NDArray[np.uint8]] = None  # Shape: (H, W, 3)
+    video_frame: NDArray[np.uint8] | None = None  # Shape: (H, W, 3)
 
     # Audio modality (optional)
-    audio_chunk: Optional[NDArray[np.float32]] = None  # Shape: (num_samples,)
+    audio_chunk: NDArray[np.float32] | None = None  # Shape: (num_samples,)
 
     # Environmental sensor modality (optional)
-    env_data: Optional[Dict[str, float]] = None  # e.g., {"temperature": 22.1, "motion": 1}
+    env_data: dict[str, float] | None = None  # e.g., {"temperature": 22.1, "motion": 1}
 
     def __post_init__(self) -> None:
         """Validate that at least one modality is present."""
         if self.video_frame is None and self.audio_chunk is None and self.env_data is None:
             raise ValueError("SensorPayload must contain at least one modality")
 
-    def get_modalities(self) -> List[str]:
+    def get_modalities(self) -> list[str]:
         """Get list of available modalities.
 
         Returns:
