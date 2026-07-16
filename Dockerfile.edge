@@ -1,0 +1,39 @@
+FROM python:3.10-slim
+
+# Prevent Python from writing .pyc files and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Edge performance constraints
+ENV OMP_NUM_THREADS=2
+ENV ONNX_EXECUTION_PROVIDER=CPUExecutionProvider
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy source code and models
+COPY src/ /app/src/
+COPY config/ /app/config/
+COPY models/ /app/models/
+
+# Ensure src is in PYTHONPATH
+ENV PYTHONPATH=/app
+
+# Define a non-root user for security
+RUN useradd -m edgeuser
+USER edgeuser
+
+# Add a health check
+HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+ENTRYPOINT ["python", "-m", "src.edge_node"]
