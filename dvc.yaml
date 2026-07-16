@@ -1,0 +1,36 @@
+stages:
+  train:
+    cmd: python scripts/train_dummy.py
+    deps:
+      - data/raw/
+      - src/engine/
+    outs:
+      - models/vision/model_fp32.pt
+  
+  export_onnx:
+    cmd: python scripts/export_vision_onnx.py
+    deps:
+      - models/vision/model_fp32.pt
+      - scripts/export_vision_onnx.py
+    outs:
+      - models/vision/model_fp32.onnx
+      
+  quantize:
+    cmd: python scripts/quantize_models.py
+    deps:
+      - models/vision/model_fp32.onnx
+      - scripts/quantize_models.py
+    outs:
+      - models/vision/model_int8.onnx
+      
+  benchmark:
+    cmd: python scripts/benchmark_accuracy.py && python scripts/benchmark_latency.py
+    deps:
+      - models/vision/model_int8.onnx
+      - scripts/benchmark_accuracy.py
+      - scripts/benchmark_latency.py
+    metrics:
+      - benchmarks/accuracy_report.json:
+          cache: false
+      - benchmarks/latency_report.json:
+          cache: false
