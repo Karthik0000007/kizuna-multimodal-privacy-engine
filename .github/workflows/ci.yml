@@ -101,9 +101,14 @@ jobs:
           docker build -t kizuna-privacy-engine:test -f Dockerfile .
         if: hashFiles('Dockerfile') != ''
       
+      - name: Check Docker/Compose availability
+        run: |
+          docker --version
+          docker compose version
+          
       - name: Validate docker-compose
         run: |
-          docker-compose config
+          docker compose config
         if: hashFiles('docker-compose.yml') != ''
 
   security:
