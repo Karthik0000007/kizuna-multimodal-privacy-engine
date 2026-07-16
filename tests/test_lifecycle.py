@@ -8,7 +8,11 @@ import pytest
 
 from src.engine.engine import UnifiedEmbedding
 from src.ingestion.models import SensorPayload
-from src.privacy.lifecycle import LifecycleException, LifecycleResult, PayloadLifecycle
+from src.privacy.lifecycle import (
+    LifecycleException,
+    LifecycleResult,
+    PayloadLifecycle,
+)
 
 
 @pytest.fixture
