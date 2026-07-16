@@ -4,11 +4,6 @@
 
 A privacy-preserving multimodal embedding engine designed for Japan's super-aging society. Kizuna converts video, audio, and sensor streams into unified vector embeddings at the edge, enabling anomaly detection without compromising personal data.
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![ONNX Runtime](https://img.shields.io/badge/ONNX-Runtime-green.svg)](https://onnxruntime.ai/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![APPI Compliant](https://img.shields.io/badge/APPI-Compliant-success.svg)](https://www.ppc.go.jp/en/)
-
 ---
 
 ## 🎯 Problem Statement
